@@ -58,16 +58,10 @@ addPolynomial :: Polynomial -> Polynomial -> Polynomial
 addPolynomial [] [] = []
 addPolynomial [] p = p
 addPolynomial p [] = p
-addPolynomial (p1:p1s) (p2:p2s) | Data.List.null p1 = (p2:p2s)
-                                | Data.List.null p2 = (p1:p1s)
-                                | Data.List.null p1s && Data.List.null p2s = [p1, p2]
-                                | Data.List.null p1s = (addPolynomial [p1] [p2]) ++ p2s 
-                                | Data.List.null p2s = (addPolynomial [p1] [p2]) ++ p1s
-                                | fst p1 == fst p2 = (fst p1, [x+y |  x <- snd p1, y <- snd p2]) : addPolynomial p1s p2s
-                                | otherwise = p1 : p2 : addPolynomial p1s p2s
+addPolynomial p1 p2 = sortAndNormalize (p1 ++ p2)
 
 addTest :: Polynomial
-addTest = addPolynomial [("x", [0,8,6])] [("y", [1,5,4]), ("a", [1,4])]
+addTest = addPolynomial [("x", [0,8,6])] [("y", [1,5,4]), ("a", [1,4]), ("x", [1,5,9])]
 
 -- Derivation Functions
 derivatePolynomial :: Polynomial -> Polynomial
