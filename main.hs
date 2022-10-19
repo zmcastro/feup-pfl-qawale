@@ -68,3 +68,21 @@ addPolynomial (p1:p1s) (p2:p2s) | Data.List.null p1 = (p2:p2s)
 
 addTest :: Polynomial
 addTest = addPolynomial [("x", [0,8,6])] [("y", [1,5,4]), ("a", [1,4])]
+
+-- Derivation Functions
+derivatePolynomial :: Polynomial -> Polynomial
+derivatePolynomial [] = []
+derivatePolynomial (x:xs) | (fst x) == "" = x : derivatePolynomial xs 
+                          | otherwise = [(fst x, derivatePolyCoeffs (snd x) 0)] ++ derivatePolynomial xs 
+
+testDerivate :: Polynomial
+testDerivate = derivatePolynomial [("", [-1,6,-0,-4]), ("w", [-1,-6,-0,-4]), ("y", [-1,-6,-0,-4]), ("x", [-1,-6,-0,-4]), ("z", [-1,-6,-0,-4])]
+
+derivatePolyCoeffs :: [Coefficient] -> Int -> [Coefficient]
+derivatePolyCoeffs [] n = []
+derivatePolyCoeffs (x:xs) 0 = derivatePolyCoeffs xs 1 
+derivatePolyCoeffs (x:xs) n = [x*n] ++ derivatePolyCoeffs xs (n+1)
+
+testDerivateCoeffs :: [Coefficient]
+testDerivateCoeffs = derivatePolyCoeffs([1,4,8]) 0 
+--
