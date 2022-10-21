@@ -136,6 +136,14 @@ orderedPrint v1 v2 e1 e2
 
 -- Derivation Functions --
 
+-- Main composite function for calculating and outputting derivatives
+derivateOp :: Polynomial -> String
+derivateOp = (showPolynomial . sortAndNormalize . derivatePolynomial) 
+
+-- Main function for for calculating and outputting partial derivatives
+derivatePartialOp :: Variable -> Polynomial -> String
+derivatePartialOp var p = showPolynomial(sortAndNormalize (derivatePartial var p))
+
 -- Derivation function based on every variable present in the polynomial
 derivatePolynomial :: Polynomial -> Polynomial
 derivatePolynomial [] = []
@@ -143,7 +151,7 @@ derivatePolynomial (x:xs) | (fst x) == "" = [(fst x, [sum ((snd x) ++ [sumNewCon
                           | otherwise = [(fst x, derivatePolyCoeffs (init (snd x)) 2)] ++ derivatePolynomial xs
 
 testDerivate :: String
-testDerivate = showPolynomial (sortAndNormalize (derivatePolynomial [("", [-1,6,-0,-4]), ("w", [-1,-6,-0,-4]), ("y", [-1,-6,-0,-4]), ("x", [-1,-6,-0,-4]), ("z", [-1,-6,-0,-4])]))
+testDerivate = derivateOp [("", [-1,6,-0,-4]), ("w", [-1,-6,-0,-4]), ("y", [-1,-6,-0,-4]), ("x", [-1,-6,-0,-4]), ("z", [-1,-6,-0,-4])]
 
 -- Function that returns value of new constants that appeared from derivation on degree-one monomials
 sumNewConstants :: Polynomial -> Int
@@ -160,7 +168,7 @@ derivatePartial var (x:xs) | (fst x) == "" = [(fst x, [sum ((snd x) ++ [sumNewCo
                            | otherwise = x : derivatePartial var xs
 
 testDerivatePartial :: String
-testDerivatePartial = showPolynomial (sortAndNormalize(derivatePartial "x" [("", [-1,6,-0,-4]), ("w", [-1,-6,-0,-4]), ("y", [-1,-6,-0,-4]), ("x", [3]), ("z", [-1,-6,-0,-4])])) 
+testDerivatePartial = derivatePartialOp "x" [("", [-1,6,-0,-4]), ("w", [-1,-6,-0,-4]), ("y", [-1,-6,-0,-4]), ("x", [3]), ("z", [-1,-6,-0,-4])] 
 
 -- Function that returns value of the new constant coming from derivation on degree-one monomial
 sumNewConstantsPartial :: Variable -> (Variable, [Coefficient]) -> Int
