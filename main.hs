@@ -137,21 +137,21 @@ orderedPrint v1 v2 e1 e2
 -- Derivation Functions --
 
 -- Main composite function for calculating and outputting derivatives
-derivateOp :: Polynomial -> String
-derivateOp = (showPolynomial . sortAndNormalize . derivatePolynomial) 
+deriveOp :: Polynomial -> String
+deriveOp = (showPolynomial . sortAndNormalize . derivePolynomial) 
 
 -- Main function for for calculating and outputting partial derivatives
-derivatePartialOp :: Variable -> Polynomial -> String
-derivatePartialOp var p = showPolynomial(sortAndNormalize (derivatePartial var p))
+derivePartialOp :: Variable -> Polynomial -> String
+derivePartialOp var p = showPolynomial(sortAndNormalize (derivePartial var p))
 
 -- Derivation function based on every variable present in the polynomial
-derivatePolynomial :: Polynomial -> Polynomial
-derivatePolynomial [] = []
-derivatePolynomial (x:xs) | (fst x) == "" = [(fst x, [sum ((snd x) ++ [sumNewConstants (x:xs)])])] ++ derivatePolynomial xs 
-                          | otherwise = [(fst x, derivatePolyCoeffs (init (snd x)) 2)] ++ derivatePolynomial xs
+derivePolynomial :: Polynomial -> Polynomial
+derivePolynomial [] = []
+derivePolynomial (x:xs) | (fst x) == "" = [(fst x, [sum ((snd x) ++ [sumNewConstants (x:xs)])])] ++ derivePolynomial xs 
+                          | otherwise = [(fst x, derivePolyCoeffs (init (snd x)) 2)] ++ derivePolynomial xs
 
-testDerivate :: String
-testDerivate = derivateOp [("", [-1,6,-0,-4]), ("w", [-1,-6,-0,-4]), ("y", [-1,-6,-0,-4]), ("x", [-1,-6,-0,-4]), ("z", [-1,-6,-0,-4])]
+testderive :: String
+testderive = deriveOp [("", [-1,6,-0,-4]), ("w", [-1,-6,-0,-4]), ("y", [-1,-6,-0,-4]), ("x", [-1,-6,-0,-4]), ("z", [-1,-6,-0,-4])]
 
 -- Function that returns value of new constants that appeared from derivation on degree-one monomials
 sumNewConstants :: Polynomial -> Int
@@ -161,27 +161,27 @@ testSumNew :: Int
 testSumNew = sumNewConstants [("", [-1,6,-0,-4]), ("w", [-1,-6,-0,-4]), ("y", [-1,-6,-0,-4]), ("x", [-1,-6,-0,-4]), ("z", [-1,-6,-0,-4])]
 
 -- Partial derivation functionbased on 1 user-input variable
-derivatePartial :: Variable -> Polynomial -> Polynomial
-derivatePartial _ [] = []
-derivatePartial var (x:xs) | (fst x) == "" = [(fst x, [sum ((snd x) ++ [sumNewConstantsPartial var x])])] ++ derivatePartial var xs 
-                           | (fst x) == var = [(fst x, derivatePolyCoeffs (init (snd x)) 2)] ++ derivatePartial var xs
-                           | otherwise = x : derivatePartial var xs
+derivePartial :: Variable -> Polynomial -> Polynomial
+derivePartial _ [] = []
+derivePartial var (x:xs) | (fst x) == "" = [(fst x, [sum ((snd x) ++ [sumNewConstantsPartial var x])])] ++ derivePartial var xs 
+                           | (fst x) == var = [(fst x, derivePolyCoeffs (init (snd x)) 2)] ++ derivePartial var xs
+                           | otherwise = x : derivePartial var xs
 
-testDerivatePartial :: String
-testDerivatePartial = derivatePartialOp "x" [("", [-1,6,-0,-4]), ("w", [-1,-6,-0,-4]), ("y", [-1,-6,-0,-4]), ("x", [3]), ("z", [-1,-6,-0,-4])] 
+testderivePartial :: String
+testderivePartial = derivePartialOp "x" [("", [-1,6,-0,-4]), ("w", [-1,-6,-0,-4]), ("y", [-1,-6,-0,-4]), ("x", [3]), ("z", [-1,-6,-0,-4])] 
 
 -- Function that returns value of the new constant coming from derivation on degree-one monomial
 sumNewConstantsPartial :: Variable -> (Variable, [Coefficient]) -> Int
 sumNewConstantsPartial var p = if Data.List.null (snd p) then 0 else last (snd p)
 
 -- Recursive derivation function that returns lists of coefficients
-derivatePolyCoeffs :: [Coefficient] -> Int -> [Coefficient]
-derivatePolyCoeffs [] n = []
-derivatePolyCoeffs p 0 = derivatePolyCoeffs (init p) 1 
-derivatePolyCoeffs p n = derivatePolyCoeffs (init p) (n+1) ++ [(last p) *n]
+derivePolyCoeffs :: [Coefficient] -> Int -> [Coefficient]
+derivePolyCoeffs [] n = []
+derivePolyCoeffs p 0 = derivePolyCoeffs (init p) 1 
+derivePolyCoeffs p n = derivePolyCoeffs (init p) (n+1) ++ [(last p) *n]
 
-testDerivateCoeffs :: [Coefficient]
-testDerivateCoeffs = derivatePolyCoeffs ([1,4,8]) 0 
+testderiveCoeffs :: [Coefficient]
+testderiveCoeffs = derivePolyCoeffs ([1,4,8]) 0 
 
 ------ 
 
