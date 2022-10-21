@@ -35,10 +35,10 @@ sortCompositeVariables p1 p2
                               var_eq = head (fst p1) == head (fst p2)
 
 createPolynomial :: Polynomial
-createPolynomial = [("x^2*y^3", [6])]
+createPolynomial = [("y", [6,3])]
 
 createPolynomial2 :: Polynomial
-createPolynomial2 = [("x^2*y^2", [3])]
+createPolynomial2 = [("x", [3,5,7]), ("w^4*z^7", [2])]
 
 showPolynomialTrimmed :: Polynomial -> String
 showPolynomialTrimmed (p:ps)
@@ -138,17 +138,27 @@ multCompositeVariables (p1:p1s) (p2:p2s)
                                           | Data.List.length (snd p1) == 1 && Data.List.length (fst p1) == 1 && Data.List.length (fst p2) > 1 = iterate_first
                                           | Data.List.length (snd p2) == 1 && Data.List.length (fst p1) > 1 && Data.List.length (fst p2) == 1 = iterate_second
                                           | Data.List.length (snd p1) /= 1 && Data.List.length (fst p1) == 1 && Data.List.length (fst p2) > 1 = iterate_first ++ multCompositeVariables [(fst p1, tail (snd p1))] (p2:p2s)
-                                          | Data.List.length (snd p2) /= 1 && Data.List.length (fst p1) > 1 && Data.List.length (fst p2) == 1 = iterate_second ++ multCompositeVariables (p1:p1s) [(fst p1, tail (snd p1))]
-                                          | otherwise = [(parseCompositeVariables (polySplitOn (fst p1) ++ fst p2), [head (snd p1) * head (snd p2)])]
+                                          | Data.List.length (snd p2) /= 1 && Data.List.length (fst p1) > 1 && Data.List.length (fst p2) == 1 = iterate_second ++ multCompositeVariables (p1:p1s) [(fst p2, tail (snd p2))]
+                                          | otherwise = [(Data.List.init (parseCompositeVariables (polySplitOn (fst p1 ++ "*" ++ fst p2))), [head (snd p1) * head (snd p2)])]
                                           where iterate_first = multSingleCompositeVariables (fst p1) (head (snd p1)) (Data.List.length (snd p1)) [p2]
                                                 iterate_second = multSingleCompositeVariables (fst p2) (head (snd p2)) (Data.List.length (snd p2)) [p1]
 
+groupNum :: [Int] -> [Int] -> [[Int]]
+groupNum (p:ps) a
+                  | Data.List.null ps = [a]
+                  | p + 1 == head ps = groupNum ps (a ++ [head ps])
+                  | otherwise = a : groupNum ps [head ps]
+
 multSingleCompositeVariables :: Variable -> Coefficient -> Exponent -> Polynomial -> Polynomial
-multSingleCompositeVariables v c e (p:ps) = [(parseCompositeVariables (polySplitOn (v ++ "^" ++ show e ++ "*" ++ fst p)), [c * head (snd p)])]
+multSingleCompositeVariables v c e (p:ps) = [(Data.List.init (parseCompositeVariables (polySplitOn (printPolynomial v 1 e ++ "*" ++ fst p))), [c * head (snd p)])]
 
 parseCompositeVariables :: [Variable] -> Variable
 parseCompositeVariables (p1:p1s)
-                                    |
+                                    | Data.List.null p1 = ""
+                                    | Data.List.null p1s = p1 ++ "*"
+                                    | Data.List.length p1s == 1 && head p1 == head (head p1s) = [head p1] ++ "^" ++ show ((read (parseFirstExp p1) :: Int) + (read (parseFirstExp (head p1s)) :: Int)) ++ "*"
+                                    | head p1 == head (head p1s) = ([head p1] ++ "^" ++ show ((read (parseFirstExp p1) :: Int) + (read (parseFirstExp (head p1s)) :: Int))) ++ "*" ++ parseCompositeVariables (tail p1s)
+                                    | otherwise = p1 ++ "*" ++ parseCompositeVariables p1s
 
 polySplitOn :: String -> [String]
 polySplitOn s = Data.List.sort (Data.List.map Text.unpack (Text.splitOn (Text.pack "*") (Text.pack s)))
@@ -160,7 +170,7 @@ orderedPrint v1 v2 e1 e2
 
 
 -- Derivation Functions --
-
+{-
 -- Main composite function for calculating and outputting derivatives
 deriveOp :: Polynomial -> String
 deriveOp = (showPolynomial . sortAndNormalize . derivePolynomial) 
@@ -209,5 +219,5 @@ testderiveCoeffs :: [Coefficient]
 testderiveCoeffs = derivePolyCoeffs ([1,4,8]) 0 
 
 ------ 
-
+-}
 
