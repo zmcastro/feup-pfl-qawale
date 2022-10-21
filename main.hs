@@ -133,20 +133,48 @@ orderedPrint v1 v2 e1 e2
                         | v1 < v2 = printPolynomial v1 1 e1 ++ "*" ++ printPolynomial v2 1 e2
                         | otherwise = printPolynomial v2 1 e2 ++ "*" ++ printPolynomial v1 1 e1
 
--- Derivation Functions
+
+-- Derivation Functions --
+
+-- Derivation function based on every variable present in the polynomial
 derivatePolynomial :: Polynomial -> Polynomial
 derivatePolynomial [] = []
-derivatePolynomial (x:xs) | fst x == "" = x : derivatePolynomial xs
-                          | otherwise = (fst x, derivatePolyCoeffs (snd x) 0) : derivatePolynomial xs
+derivatePolynomial (x:xs) | (fst x) == "" = [(fst x, [sum ((snd x) ++ [sumNewConstants (x:xs)])])] ++ derivatePolynomial xs 
+                          | otherwise = [(fst x, derivatePolyCoeffs (init (snd x)) 2)] ++ derivatePolynomial xs
 
-testDerivate :: Polynomial
-testDerivate = derivatePolynomial [("", [-1,6,-0,-4]), ("w", [-1,-6,-0,-4]), ("y", [-1,-6,-0,-4]), ("x", [-1,-6,-0,-4]), ("z", [-1,-6,-0,-4])]
+testDerivate :: String
+testDerivate = showPolynomial (sortAndNormalize (derivatePolynomial [("", [-1,6,-0,-4]), ("w", [-1,-6,-0,-4]), ("y", [-1,-6,-0,-4]), ("x", [-1,-6,-0,-4]), ("z", [-1,-6,-0,-4])]))
 
+-- Function that returns value of new constants that appeared from derivation on degree-one monomials
+sumNewConstants :: Polynomial -> Int
+sumNewConstants p = sum [x | x <- [last (snd i) | i <- p, (fst i) /= ""]]
+                  
+testSumNew :: Int
+testSumNew = sumNewConstants [("", [-1,6,-0,-4]), ("w", [-1,-6,-0,-4]), ("y", [-1,-6,-0,-4]), ("x", [-1,-6,-0,-4]), ("z", [-1,-6,-0,-4])]
+
+-- Partial derivation functionbased on 1 user-input variable
+derivatePartial :: Variable -> Polynomial -> Polynomial
+derivatePartial _ [] = []
+derivatePartial var (x:xs) | (fst x) == "" = [(fst x, [sum ((snd x) ++ [sumNewConstantsPartial var x])])] ++ derivatePartial var xs 
+                           | (fst x) == var = [(fst x, derivatePolyCoeffs (init (snd x)) 2)] ++ derivatePartial var xs
+                           | otherwise = x : derivatePartial var xs
+
+testDerivatePartial :: String
+testDerivatePartial = showPolynomial (sortAndNormalize(derivatePartial "x" [("", [-1,6,-0,-4]), ("w", [-1,-6,-0,-4]), ("y", [-1,-6,-0,-4]), ("x", [3]), ("z", [-1,-6,-0,-4])])) 
+
+-- Function that returns value of the new constant coming from derivation on degree-one monomial
+sumNewConstantsPartial :: Variable -> (Variable, [Coefficient]) -> Int
+sumNewConstantsPartial var p = if Data.List.null (snd p) then 0 else last (snd p)
+
+-- Recursive derivation function that returns lists of coefficients
 derivatePolyCoeffs :: [Coefficient] -> Int -> [Coefficient]
 derivatePolyCoeffs [] n = []
-derivatePolyCoeffs (x:xs) 0 = derivatePolyCoeffs xs 1
-derivatePolyCoeffs (x:xs) n = (x*n) : derivatePolyCoeffs xs (n+1)
+derivatePolyCoeffs p 0 = derivatePolyCoeffs (init p) 1 
+derivatePolyCoeffs p n = derivatePolyCoeffs (init p) (n+1) ++ [(last p) *n]
 
 testDerivateCoeffs :: [Coefficient]
-testDerivateCoeffs = derivatePolyCoeffs [1,4,8] 0
+testDerivateCoeffs = derivatePolyCoeffs ([1,4,8]) 0 
+
+------ 
+
 
