@@ -1,16 +1,17 @@
 import Data.List
+import qualified Data.Text as Text
 import Data.Sequence
 import Data.Char
 import Polynomial
 import Data.Foldable (Foldable(toList))
+
+-- multiplicação de variáveis compostas: splitOn (*)
 
 toRemoveLeading :: Char -> Bool
 toRemoveLeading a = (a /= '-') && not (isAlphaNum a)
 
 parseFirstExp :: String -> String
 parseFirstExp a = takeWhile isDigit (dropWhile (not . isDigit) a)
-
---fix para somar listas de coeficientes com variáveis compostas: função que concatene as 2 variáveis por ordem alfabética
 
 sortCompositeVariables :: (Variable, [Coefficient]) -> (Variable, [Coefficient]) -> Ordering
 sortCompositeVariables p1 p2
@@ -25,6 +26,8 @@ sortCompositeVariables p1 p2
                         | var_eq && fst p2 !! 1 /= '^' && fst p1 !! 1 == '^' = LT
                         | parseFirstExp (fst p1) < parseFirstExp (fst p2) = GT
                         | parseFirstExp (fst p1) > parseFirstExp (fst p2) = LT
+                        | Data.List.length (fst p1) < Data.List.length (fst p2) = LT
+                        | Data.List.length (fst p1) > Data.List.length (fst p2) = GT
                         | otherwise = EQ
                         where single_vars = Data.List.length (fst p1) == 1 && Data.List.length (fst p2) == 1
                               single_first_var = Data.List.length (fst p1) == 1 && Data.List.length (fst p2) > 1
@@ -32,10 +35,10 @@ sortCompositeVariables p1 p2
                               var_eq = head (fst p1) == head (fst p2)
 
 createPolynomial :: Polynomial
-createPolynomial = [("x", [3,6]), ("y", [4,2]), ("", [3])]
+createPolynomial = [("x^2*y^3", [6])]
 
 createPolynomial2 :: Polynomial
-createPolynomial2 = [("x", [3,6]), ("z", [4,2]), ("", [2])]
+createPolynomial2 = [("x^2*y^2", [3])]
 
 showPolynomialTrimmed :: Polynomial -> String
 showPolynomialTrimmed (p:ps)
@@ -63,7 +66,7 @@ sortAndNormalize (p:ps)
 
 normalizePolynomial :: Polynomial -> Polynomial
 normalizePolynomial (p:ps)
-                            | Data.List.null ps = [p]
+                            | Data.List.null ps && not (Data.List.null (fst p)) = [p]
                             | Data.List.length ps == 1 && fst p /= fst (head ps) = p:ps
                             | Data.List.length ps == 1 && fst p == fst (head ps) = [(fst p, Data.List.reverse (myListSum (Data.List.reverse (snd p)) (Data.List.reverse (snd (head ps)))))]
                             | Data.List.null (fst p) && Data.List.length (snd p) /= 1 && Data.List.null ps = [(fst p, [Data.List.sum (snd p)])]
@@ -100,6 +103,8 @@ multPolyToList a (p:ps)
                         | Data.List.null (fst p) = (fst (head a), map (* head (snd p)) (snd (head a))) : multPolyToList a ps
                         | Data.List.null (fst (head a)) && Data.List.null ps = [(fst p, map (* head (snd (head a))) (snd p))]
                         | Data.List.null (fst (head a)) = (fst p, map (* head (snd (head a))) (snd p)) : multPolyToList a ps
+                        | (Data.List.length (fst p) > 1 || Data.List.length (fst (head a)) > 1) && Data.List.null ps = multCompositeVariables a [p]
+                        | Data.List.length (fst p) > 1 || Data.List.length (fst (head a)) > 1 = multCompositeVariables a [p] ++ multPolyToList a ps
                         | fst (head a) == fst p && Data.List.null ps = [(fst p, multSameVar (snd (head a)) (snd p) new_list)]
                         | fst (head a) == fst p = (fst p, multSameVar (snd (head a)) (snd p) new_list) : multPolyToList a ps
                         | fst (head a) /= fst p && Data.List.null ps = multDiffVar a [p]
@@ -127,6 +132,26 @@ multSingleDiffVar :: Variable -> Coefficient -> Exponent -> Polynomial -> Polyno
 multSingleDiffVar v c e (p:ps)
                 | Data.List.length (snd p) == 1 = [(orderedPrint v (fst p) e (Data.List.length (snd p)), [c * head (snd p)])]
                 | otherwise = (orderedPrint v (fst p) e (Data.List.length (snd p)), [c * head (snd p)]) : multSingleDiffVar v c e [(fst p, tail (snd p))]
+
+multCompositeVariables :: Polynomial -> Polynomial -> Polynomial
+multCompositeVariables (p1:p1s) (p2:p2s)
+                                          | Data.List.length (snd p1) == 1 && Data.List.length (fst p1) == 1 && Data.List.length (fst p2) > 1 = iterate_first
+                                          | Data.List.length (snd p2) == 1 && Data.List.length (fst p1) > 1 && Data.List.length (fst p2) == 1 = iterate_second
+                                          | Data.List.length (snd p1) /= 1 && Data.List.length (fst p1) == 1 && Data.List.length (fst p2) > 1 = iterate_first ++ multCompositeVariables [(fst p1, tail (snd p1))] (p2:p2s)
+                                          | Data.List.length (snd p2) /= 1 && Data.List.length (fst p1) > 1 && Data.List.length (fst p2) == 1 = iterate_second ++ multCompositeVariables (p1:p1s) [(fst p1, tail (snd p1))]
+                                          | otherwise = [(parseCompositeVariables (polySplitOn (fst p1) ++ fst p2), [head (snd p1) * head (snd p2)])]
+                                          where iterate_first = multSingleCompositeVariables (fst p1) (head (snd p1)) (Data.List.length (snd p1)) [p2]
+                                                iterate_second = multSingleCompositeVariables (fst p2) (head (snd p2)) (Data.List.length (snd p2)) [p1]
+
+multSingleCompositeVariables :: Variable -> Coefficient -> Exponent -> Polynomial -> Polynomial
+multSingleCompositeVariables v c e (p:ps) = [(parseCompositeVariables (polySplitOn (v ++ "^" ++ show e ++ "*" ++ fst p)), [c * head (snd p)])]
+
+parseCompositeVariables :: [Variable] -> Variable
+parseCompositeVariables (p1:p1s)
+                                    |
+
+polySplitOn :: String -> [String]
+polySplitOn s = Data.List.sort (Data.List.map Text.unpack (Text.splitOn (Text.pack "*") (Text.pack s)))
 
 orderedPrint :: Variable -> Variable -> Exponent -> Exponent -> String
 orderedPrint v1 v2 e1 e2
