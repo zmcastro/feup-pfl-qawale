@@ -171,39 +171,38 @@ module Polynomial where
 
     -- Main function for calculating and outputting partial derivatives
     derivePartialOp :: Variable ->  [Polynomial] -> String
-    derivePartialOp var p = showPolynomial(sortAndNormalize (derivePartial var p))                
+    derivePartialOp deriving_var p = showPolynomialTrimmed(sortAndNormalize (derivePartial deriving_var p))                
 
     -- Partial differentiation function based on 1 user-input variable
     derivePartial :: Variable -> [Polynomial] -> [Polynomial]
     derivePartial _ [] = []
-    derivePartial deriving_var (x:xs) 
-                            | variable x == "" = Polynomial (variable x) [sum (coefficients x ++ [sumNewConstants deriving_var (x:xs)])] : derivePartial deriving_var xs 
+    derivePartial deriving_var (x:xs)  
                             | variable x == deriving_var = Polynomial (variable x) (derivePolyCoeffs (init (coefficients x)) 2) : derivePartial deriving_var xs
                             | List.length (variable x) > 1 && isInfixOf deriving_var (variable x) = deriveCompositeVar (head deriving_var) x ++ derivePartial deriving_var xs
-                            | otherwise = x : derivePartial deriving_var xs
+                            | otherwise = derivePartial deriving_var xs
 
     testderivePartial :: String
-    testderivePartial = derivePartialOp "a" [Polynomial "" [8], Polynomial "a^23*x" [-3], Polynomial "y" [-1,-6,-0,-4], Polynomial "x" [3], Polynomial "z" [-1,-6,-0,-4]] 
+    testderivePartial = derivePartialOp "y" [Polynomial "" [8], Polynomial "a^23*x" [-3], Polynomial "y" [-1,-6,-0,-4], Polynomial "x" [3], Polynomial "z" [-1,-6,-0,-4]] 
 
     -- Function that returns value of new constants that appeared from differentiation on degree-one monomials
     sumNewConstants :: Variable -> [Polynomial] -> Int
-    sumNewConstants var p = sum ([last (coefficients i) | i <- p, variable i == var && List.null (variable i)])
+    sumNewConstants deriving_var p = sum [last (coefficients i) | i <- p, variable i == deriving_var && List.null (variable i)]
 
     testSumNew :: Int
-    testSumNew = sumNewConstants "w" [Polynomial "" [], Polynomial "w" [-1,-6,-0,-4], Polynomial "w" [-1,-6,-0,-4], Polynomial "x" [-1,-6,-0,-4], Polynomial "z" [-1,-6,-0,-4]]
+    testSumNew = sumNewConstants "w" [Polynomial "" [2], Polynomial "w" [-1,-6,-0,-4], Polynomial "y" [-1,-6,-0,-4], Polynomial "x" [-1,-6,-0,-4], Polynomial "z" [-1,-6,-0,-4]]
                             
     -- Function that takes care of differentiation regarding composite variables
     deriveCompositeVar :: Char -> Polynomial -> [Polynomial]
-    deriveCompositeVar var p = [getNewVarComp var parsed_vars (head (coefficients p))]
+    deriveCompositeVar deriving_var p = [getNewVarComp deriving_var parsed_vars (head (coefficients p))]
                             where parsed_vars = polySplitOn (variable p);
-                                  selected_var = head [i | i <- parsed_vars, head i == var]
+                                  selected_var = head [i | i <- parsed_vars, head i == deriving_var]
 
 
     getNewVarComp :: Char -> [String] -> Coefficient -> Polynomial
-    getNewVarComp var s c | List.length selected_var == 1 = Polynomial (intercalate "" ([i | i <- s, head i /= var])) [c]
-                          | List.length selected_var == 3 && selected_var !! 2 == '2' = Polynomial (intercalate "" ([i | i <- s, head i /= var] ++ ["*", [var]])) [c*2]
-                          | otherwise = Polynomial (intercalate "" ([i | i <- s, head i /= var] ++ ["*", [var], "^"] ++ [show new_coefficient])) [c*(new_coefficient+1)]
-                          where selected_var = head [i | i <- s, head i == var];
+    getNewVarComp deriving_var s c | List.length selected_var == 1 = Polynomial (intercalate "" ([i | i <- s, head i /= deriving_var])) [c]
+                          | List.length selected_var == 3 && selected_var !! 2 == '2' = Polynomial (intercalate "" ([i | i <- s, head i /= deriving_var] ++ ["*", [deriving_var]])) [c*2]
+                          | otherwise = Polynomial (intercalate "" ([i | i <- s, head i /= deriving_var] ++ ["*", [deriving_var], "^"] ++ [show new_coefficient])) [c*(new_coefficient+1)]
+                          where selected_var = head [i | i <- s, head i == deriving_var];
                                 new_coefficient = lowerDegree (List.drop 2 selected_var)
                                         
     lowerDegree :: String -> Int
@@ -216,4 +215,4 @@ module Polynomial where
     derivePolyCoeffs p n = derivePolyCoeffs (init p) (n+1) ++ [last p *n]
 
     testderiveCoeffs :: [Coefficient]
-    testderiveCoeffs = derivePolyCoeffs [1,4,8] 0 
+    testderiveCoeffs = derivePolyCoeffs [2,4,8] 0 
