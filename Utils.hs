@@ -9,10 +9,7 @@ module Utils where
     toRemoveLeading :: Char -> Bool
     toRemoveLeading a = (a /= '-') && not (isAlphaNum a)
 
-    parseFirstExp :: String -> String
-    parseFirstExp a = takeWhile isDigit (dropWhile (not . isDigit) a)
-
-    myListSum :: [Int] -> [Int] -> [Int]
-    myListSum a [] = a
-    myListSum [] b = b
-    myListSum (p1:p1s) (p2:p2s) = (p1 + p2) : myListSum p1s p2s
+    myListZipSum :: [Int] -> [Int] -> [Int]
+    myListZipSum a [] = a
+    myListZipSum [] b = b
+    myListZipSum (p1:p1s) (p2:p2s) = (p1 + p2) : myListZipSum p1s p2s

@@ -4,7 +4,7 @@ module Main where
       
       -- The program's main loop. Accepts user input and calls the appropriate functions 
 
-      main :: IO Polynomial
+      main :: IO [Polynomial]
       main = do 
             putStrLn "Welcome!"
             x <- getLine
