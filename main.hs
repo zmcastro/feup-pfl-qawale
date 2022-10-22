@@ -4,15 +4,14 @@ module Main where
       
       -- The program's main loop. Accepts user input and calls the appropriate functions 
 
-      main :: IO ()
+      main :: IO Polynomial
       main = do 
             putStrLn "Welcome!"
             x <- getLine
             let opt = read x :: Int
             case opt of 
-                  1 -> putStrLn "Hello!"
-                  2 -> putStrLn "Hey!"
-                  _ -> putStrLn "Error!"
+                  1 -> return createPolynomial
+                  _ -> error "Nope"
 
 
 

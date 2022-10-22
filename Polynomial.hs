@@ -4,25 +4,35 @@ module Polynomial where
     import Data.Sequence as Seq
     import Data.Foldable
     import qualified Data.Text as Text
-    type Polynomial = [(Variable, [Coefficient])]
+    data Polynomial = SimplePolynomial {variable :: Variable, coefficients :: [Coefficient]} | 
+                    CompositePolynomial {var_and_exp :: Variable, coefficient :: Coefficient} deriving (Show)
     type Coefficient = Int
     type Exponent = Int
     type Variable = String
 
     createPolynomial :: Polynomial
-    createPolynomial = [("y", [6,3])]
+    createPolynomial = SimplePolynomial "y" [2,3]
 
-    createPolynomial2 :: Polynomial
-    createPolynomial2 = [("x", [3,5,7]), ("w^4*z^7", [2])]
+    createPolynomial2 :: [Polynomial]
+    createPolynomial2 = [SimplePolynomial "x" [3,5,7], CompositePolynomial "w^4*z^7" 2]
+
+    polyVariable :: Polynomial -> String
+    polyVariable = variable
+
+    polyCoeffs :: Polynomial -> [Coefficient]
+    polyCoeffs = coefficients
+
+    polyFirstExp :: Polynomial -> Int
+    polyFirstExp p = List.length (coefficients p)
     
-    printPolynomial :: String -> Int -> Int -> String
+    printPolynomial :: Variable -> Coefficient -> Coefficient -> String
     printPolynomial var coef exp
                     | coef == 0 = ""
                     | coef == 1 && List.null var = show coef
                     | coef == 1 && exp == 1 = var
                     | coef == 1 && exp /= 1 = var ++ "^" ++ show exp
-                    | coef /= 1 && exp == 1 = show coef ++ var
-                    | coef /= 1 && exp /= 1 = show coef ++ var ++ "^" ++ show exp
+                    | coef /= 1 && exp == 1 = show coef ++ "*" ++ var
+                    | coef /= 1 && exp /= 1 = show coef ++ "*" ++ var ++ "^" ++ show exp
                     | List.length var > 1 = show coef
                     | otherwise = error "Error on printPolynomial"
 
@@ -31,7 +41,7 @@ module Polynomial where
                         | v1 < v2 = printPolynomial v1 1 e1 ++ "*" ++ printPolynomial v2 1 e2
                         | otherwise = printPolynomial v2 1 e2 ++ "*" ++ printPolynomial v1 1 e1
 
-    sortCompositeVariables :: (Variable, [Coefficient]) -> (Variable, [Coefficient]) -> Ordering
+    sortCompositeVariables :: Polynomial -> Polynomial -> Ordering
     sortCompositeVariables p1 p2
                         | List.null (fst p1) = GT
                         | List.null (fst p2) = LT
@@ -56,13 +66,13 @@ module Polynomial where
     polySplitOn s = List.sort (List.map Text.unpack (Text.splitOn (Text.pack "*") (Text.pack s)))
 
 
-    showPolynomialTrimmed :: Polynomial -> String
+    showPolynomialTrimmed :: [Polynomial] -> String
     showPolynomialTrimmed (p:ps)
                             | head a == '-' = '-' : List.drop 2 a
                             | otherwise = a
                             where a = dropWhile toRemoveLeading (showPolynomial (p:ps))
     
-    showPolynomial :: Polynomial -> String
+    showPolynomial :: [Polynomial] -> String
     showPolynomial (p:ps)
                     | List.null (p:ps) = ""
                     | List.null (snd p) = showPolynomial ps
