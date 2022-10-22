@@ -177,6 +177,7 @@ module Polynomial where
     derivePartial :: Variable -> [Polynomial] -> [Polynomial]
     derivePartial _ [] = []
     derivePartial deriving_var (x:xs)  
+                            | variable x == "" =  [ Polynomial "" [sum (coefficients x ++ [sumNewConstants deriving_var (x:xs)])] ] ++ derivePartial deriving_var xs 
                             | variable x == deriving_var = Polynomial (variable x) (derivePolyCoeffs (init (coefficients x)) 2) : derivePartial deriving_var xs
                             | List.length (variable x) > 1 && isInfixOf deriving_var (variable x) = deriveCompositeVar (head deriving_var) x ++ derivePartial deriving_var xs
                             | otherwise = derivePartial deriving_var xs
@@ -186,7 +187,7 @@ module Polynomial where
 
     -- Function that returns value of new constants that appeared from differentiation on degree-one monomials
     sumNewConstants :: Variable -> [Polynomial] -> Int
-    sumNewConstants deriving_var p = sum [last (coefficients i) | i <- p, variable i == deriving_var && List.null (variable i)]
+    sumNewConstants deriving_var p = sum [last (coefficients i) | i <- p, variable i == deriving_var]
 
     testSumNew :: Int
     testSumNew = sumNewConstants "w" [Polynomial "" [2], Polynomial "w" [-1,-6,-0,-4], Polynomial "y" [-1,-6,-0,-4], Polynomial "x" [-1,-6,-0,-4], Polynomial "z" [-1,-6,-0,-4]]
