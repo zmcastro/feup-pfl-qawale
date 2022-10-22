@@ -104,6 +104,9 @@ module Polynomial where
     addPolynomial :: [Polynomial] -> [Polynomial] -> String
     addPolynomial a b = showPolynomialTrimmed (sortAndNormalize (a ++ b))
 
+    -- Multiplication --
+
+    -- Main function to multiply two Polynomials --
     multiplyPolynomials :: [Polynomial] -> [Polynomial] -> [Polynomial]
     multiplyPolynomials (p1:p1s) (p2:p2s)
                                         | List.null p1s = multPolyToList p1 (p2:p2s)
@@ -177,7 +180,7 @@ module Polynomial where
     derivePartial :: Variable -> [Polynomial] -> [Polynomial]
     derivePartial _ [] = []
     derivePartial deriving_var (x:xs)  
-                            | variable x == "" =  [ Polynomial "" [sum (coefficients x ++ [sumNewConstants deriving_var (x:xs)])] ] ++ derivePartial deriving_var xs 
+                            | variable x == "" = Polynomial "" [sum (coefficients x ++ [sumNewConstants deriving_var (x:xs)])] : derivePartial deriving_var xs 
                             | variable x == deriving_var = Polynomial (variable x) (derivePolyCoeffs (init (coefficients x)) 2) : derivePartial deriving_var xs
                             | List.length (variable x) > 1 && isInfixOf deriving_var (variable x) = deriveCompositeVar (head deriving_var) x ++ derivePartial deriving_var xs
                             | otherwise = derivePartial deriving_var xs
