@@ -185,15 +185,9 @@ module Polynomial where
                             | List.length (variable x) > 1 && isInfixOf deriving_var (variable x) = deriveCompositeVar (head deriving_var) x ++ derivePartial deriving_var xs
                             | otherwise = derivePartial deriving_var xs
 
-    testderivePartial :: String
-    testderivePartial = derivePartialOp "y" [Polynomial "" [8], Polynomial "a^23*x" [-3], Polynomial "y" [-1,-6,-0,-4], Polynomial "x" [3], Polynomial "z" [-1,-6,-0,-4]] 
-
     -- Function that returns value of new constants that appeared from differentiation on degree-one monomials
     sumNewConstants :: Variable -> [Polynomial] -> Int
     sumNewConstants deriving_var p = sum [last (coefficients i) | i <- p, variable i == deriving_var]
-
-    testSumNew :: Int
-    testSumNew = sumNewConstants "w" [Polynomial "" [2], Polynomial "w" [-1,-6,-0,-4], Polynomial "y" [-1,-6,-0,-4], Polynomial "x" [-1,-6,-0,-4], Polynomial "z" [-1,-6,-0,-4]]
                             
     -- Function that takes care of differentiation regarding composite variables
     deriveCompositeVar :: Char -> Polynomial -> [Polynomial]
@@ -216,7 +210,4 @@ module Polynomial where
     derivePolyCoeffs :: [Coefficient] -> Int -> [Coefficient]
     derivePolyCoeffs [] n = []
     derivePolyCoeffs p 0 = derivePolyCoeffs (init p) 1 
-    derivePolyCoeffs p n = derivePolyCoeffs (init p) (n+1) ++ [last p *n]
-
-    testderiveCoeffs :: [Coefficient]
-    testderiveCoeffs = derivePolyCoeffs [2,4,8] 0 
+    derivePolyCoeffs p n = derivePolyCoeffs (init p) (n+1) ++ [last p *n] 
