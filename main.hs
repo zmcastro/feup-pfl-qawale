@@ -1,7 +1,9 @@
 import Data.List
 import qualified Data.Text as Text
+import Data.String
 import Data.Sequence
 import Data.Char
+import Data.Maybe
 import Polynomial
 import Data.Foldable (Foldable(toList))
 
@@ -87,6 +89,7 @@ printPolynomial var coef exp
                     | coef == 1 && exp /= 1 = var ++ "^" ++ show exp
                     | coef /= 1 && exp == 1 = show coef ++ var
                     | coef /= 1 && exp /= 1 = show coef ++ var ++ "^" ++ show exp
+                    | Data.List.length var > 1 = show coef
                     | otherwise = error "Error on printPolynomial"
 
 addPolynomial :: Polynomial -> Polynomial -> String
@@ -170,7 +173,7 @@ orderedPrint v1 v2 e1 e2
 
 
 -- Derivation Functions --
-{-
+
 -- Main composite function for calculating and outputting derivatives
 deriveOp :: Polynomial -> String
 deriveOp = (showPolynomial . sortAndNormalize . derivePolynomial) 
@@ -198,16 +201,35 @@ testSumNew = sumNewConstants [("", [-1,6,-0,-4]), ("w", [-1,-6,-0,-4]), ("y", [-
 -- Partial derivation functionbased on 1 user-input variable
 derivePartial :: Variable -> Polynomial -> Polynomial
 derivePartial _ [] = []
-derivePartial var (x:xs) | (fst x) == "" = [(fst x, [sum ((snd x) ++ [sumNewConstantsPartial var x])])] ++ derivePartial var xs 
-                           | (fst x) == var = [(fst x, derivePolyCoeffs (init (snd x)) 2)] ++ derivePartial var xs
-                           | otherwise = x : derivePartial var xs
+derivePartial var (x:xs) | (fst x) == "" = [(fst x, [sum ((snd x) ++ [sumNewConstantsPartial x])])] ++ derivePartial var xs 
+                         | (fst x) == var = [(fst x, derivePolyCoeffs (init (snd x)) 2)] ++ derivePartial var xs
+                         | Data.List.length (fst x) > 1 && isInfixOf var (fst x) = deriveCompositeVar (head var) x ++ derivePartial var xs
+                         | otherwise = x : derivePartial var xs
 
 testderivePartial :: String
-testderivePartial = derivePartialOp "x" [("", [-1,6,-0,-4]), ("w", [-1,-6,-0,-4]), ("y", [-1,-6,-0,-4]), ("x", [3]), ("z", [-1,-6,-0,-4])] 
+testderivePartial = derivePartialOp "a" [("", [-1,6,-0,-4]), ("a^23*x", [-3]), ("y", [-1,-6,-0,-4]), ("x", [3]), ("z", [-1,-6,-0,-4])] 
 
 -- Function that returns value of the new constant coming from derivation on degree-one monomial
-sumNewConstantsPartial :: Variable -> (Variable, [Coefficient]) -> Int
-sumNewConstantsPartial var p = if Data.List.null (snd p) then 0 else last (snd p)
+sumNewConstantsPartial :: (Variable, [Coefficient]) -> Int
+sumNewConstantsPartial p = if Data.List.null (snd p) || (Data.List.length (fst p) > 1) then 0 else last (snd p)
+                         
+
+-- Function that takes care of differentiation regarding composite variables
+deriveCompositeVar :: Char -> (Variable, [Coefficient]) -> [(Variable, [Coefficient])]
+deriveCompositeVar var p = [getNewVarComp var parsed_vars (head (snd p))]
+                         where parsed_vars = polySplitOn (fst p)
+                               selected_var = head [i | i <- parsed_vars, head i == var]
+
+
+getNewVarComp :: Char -> [String] -> Coefficient -> (Variable, [Coefficient])
+getNewVarComp var s c | Data.List.length selected_var == 1 = (concat (Data.List.intersperse "" ([i | i <- s, (head i) /= var])), [c])
+                      | Data.List.length selected_var == 3 && selected_var !! 2 == '2' = (concat (Data.List.intersperse "" ([i | i <- s, (head i) /= var] ++ ["*", [var]])), [c*2])
+                      | otherwise = (concat (Data.List.intersperse "" ([i | i <- s, (head i) /= var] ++ ["*", [var], "^"] ++ [show new_coefficient])), [c*(new_coefficient+1)])
+                      where selected_var = head [i | i <- s, head i == var]   
+                            new_coefficient = lowerDegree (Data.List.drop 2 selected_var)
+                                     
+lowerDegree :: String -> Int
+lowerDegree n = (read n::Int) - 1 
 
 -- Recursive derivation function that returns lists of coefficients
 derivePolyCoeffs :: [Coefficient] -> Int -> [Coefficient]
@@ -219,5 +241,5 @@ testderiveCoeffs :: [Coefficient]
 testderiveCoeffs = derivePolyCoeffs ([1,4,8]) 0 
 
 ------ 
--}
+
 
