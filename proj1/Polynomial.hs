@@ -4,6 +4,7 @@ module Polynomial where
       import Data.List as List
       import Data.Sequence as Seq
       import Data.Foldable
+      
       data Polynomial = Polynomial {variable :: Variable, coefficients :: [Coefficient]} deriving (Show)
       type Coefficient = Int
       type Exponent = Int
@@ -215,7 +216,10 @@ module Polynomial where
 
       -- Calls function for partial differentiation function based on a simple variable and treats constants separately
       derivePartial :: Variable -> [Polynomial] -> [Polynomial]
-      derivePartial deriving_var (x:xs) = derivePartialNoConstants deriving_var (x:xs) ++ [Polynomial "" [sumNewConstants deriving_var (x:xs)]]
+      derivePartial deriving_var (x:xs) = if new_constants == 0
+            then  derivePartialNoConstants deriving_var (x:xs) 
+            else  derivePartialNoConstants deriving_var (x:xs) ++ [Polynomial "" [new_constants]]
+            where { new_constants = sumNewConstants deriving_var (x:xs);}
       
       -- Derivation of literals with no addition of constants
       derivePartialNoConstants :: Variable -> [Polynomial] -> [Polynomial]

@@ -19,7 +19,7 @@ Nos edge cases em que um polinómio apresenta variáveis compostas (ex.: "a*x^2"
 
 Exemplificando:
 
-    "2*x^3 + 5*x^2" => ("x", [2, 5, 0, 0])
+    "2*x^3 + 5*x^2" => ("x", [2, 5, 0]])
     -
     "x^4 + 5*y + 10 + 2 => [("", [10, 2]), ("x", [4, 0, 0, 0]), [("y", [5])]]
     -

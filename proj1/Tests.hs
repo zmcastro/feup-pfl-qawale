@@ -7,7 +7,7 @@ module Tests where
     -- Example polynomials that are used by the tests. Modify them as you wish.
     
     testPolynomial :: [Polynomial]
-    testPolynomial = [Polynomial "x" [3,6,5], Polynomial "x" [5,4], Polynomial "" [8,6]]
+    testPolynomial = [Polynomial "x" [5,5], Polynomial "y" [10], Polynomial "" [2]]
 
     testPolynomial2 :: [Polynomial]
     testPolynomial2 = [Polynomial "z*w" [3], Polynomial "y" [2,3], Polynomial "" [5]]
