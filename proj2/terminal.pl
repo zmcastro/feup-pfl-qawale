@@ -110,7 +110,7 @@ display_stack_list([Row | T], Index, Size) :-    RowIndex is Index + 1,
 % Display the pieces of each stack on the current row.
 display_row_stacks(_, _/Size, Size) :- format('~n~n',[]).
 display_row_stacks([Stack | T], Row/Col, Size) :- NewCol is Col + 1,
-                                                                atomics_to_string(Stack, '', String),
+                                                                atom_chars(String, Stack),
                                                                 format('~w/~w = [~w] ', [Row, NewCol, String]),
                                                                 display_row_stacks(T, Row/NewCol, Size).
 

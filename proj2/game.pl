@@ -60,7 +60,7 @@ ask_move(Board-Player, h, Row/Col, piece, TurnsLeft) :- repeat,
                                                          Row > 0, Col > 0,
                                                          move(Board-Player, Row/Col, piece, _).
 
-ask_move(Board-Player, h, MovementString, PieceMove, stack, TurnsLeft) :- repeat,
+ask_move(Board-Player, h, Move, PieceMove, stack, TurnsLeft) :- repeat,
                                                                get_stack(Board, PieceMove, Stack),
                                                                format('~nStack to be moved: ~w~n~n', [Stack]),
                                                                format('~w, where will you move your stack? (Input a string of characters X, such that:~n', [Player]),

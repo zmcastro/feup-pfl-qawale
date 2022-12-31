@@ -48,7 +48,7 @@ move(Board-Player, Move, Row/Col, stack, NewBoard-NextPlayer) :- allowed_move(Bo
                                                                  last(BoardList, NewBoard).
 
 allowed_move(Board, Row, Col, piece) :- non_empty_stack(Board, Row/Col).
-allowed_move(Board, Move, MoveList, stack) :- string_codes(Move, MoveList),
+allowed_move(Board, Move, MoveList, stack) :- atom_codes(Move, MoveList),
                              no_backtracking(MoveList, PrevMove).
 
 generate_board(Board, Row/Col, ChosenRow, NewStack, NewBoard) :- replace(ChosenRow, Col, NewStack, NewRow),
