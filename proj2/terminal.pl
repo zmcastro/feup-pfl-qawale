@@ -8,7 +8,7 @@ encoding(utf8).
 gamemode(h/h).
 size(4).
 
-total_pieces(4).
+total_pieces(16).
 
 %
 % ASCII Character Dictionaries
