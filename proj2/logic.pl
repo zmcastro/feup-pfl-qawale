@@ -1,5 +1,6 @@
 :- use_module(library(lists)).
 :- use_module(library(clpfd)).
+:- use_module(library(apply)).
 
 opposites(110, 115).
 opposites(115, 110).
@@ -49,18 +50,18 @@ move(Board-Player, Move, Row/Col, stack, NewBoard-NextPlayer) :- allowed_move(Bo
 
 allowed_move(Board, Row, Col, piece) :- non_empty_stack(Board, Row/Col).
 allowed_move(Board, Move, MoveList, stack) :- atom_codes(Move, MoveList),
-                             no_backtracking(MoveList, PrevMove).
+                             no_backtracking(PrevMove, MoveList).
 
 generate_board(Board, Row/Col, ChosenRow, NewStack, NewBoard) :- replace(ChosenRow, Col, NewStack, NewRow),
                                                       replace(Board, Row, NewRow, NewBoard).
 
-no_backtracking([], _).
-no_backtracking([MoveHead | T], PrevMove) :- (
+no_backtracking(_, []).
+no_backtracking(PrevMove, [MoveHead | T]) :- (
                                                 var(PrevMove);
                                                 \+opposites(MoveHead, PrevMove)
                                              ),
                                             NewPrevMove is MoveHead, 
-                                            no_backtracking(T, NewPrevMove).
+                                            no_backtracking(NewPrevMove, T).
 
 move_stack(Board, [], Row/Col, [], [Board | NT]).
 
@@ -70,7 +71,13 @@ move_stack(Board, [MoveHead | MT], Row/Col, ChosenStack, [NewBoard | NT]) :- las
                                                                             pop_back(ChosenStack, PoppedStack),
                                                                             move_stack(NewBoard, MT, NewRow/NewCol, PoppedStack, NT).
 
-new_coordinates(Row/Col, MoveHead, NewRow/NewCol) :- char_code(MoveChar, MoveHead),
+new_coordinates(Row/Col, MoveHead, NewRow/NewCol) :- (
+                                                      MoveHead = 110;
+                                                      MoveHead = 115;
+                                                      MoveHead = 101;
+                                                      MoveHead = 119
+                                                     ),
+                                                     char_code(MoveChar, MoveHead),
                                                      calculate_coords(Row/Col, MoveChar, NewRow/NewCol),
                                                      valid_coords(NewRow/NewCol).
 
@@ -98,7 +105,7 @@ place_piece(Board, Player, Row/Col, NewBoard) :- get_stack(Board, Row/Col, Chose
                                                 (
                                                     stone_char(Player, Piece), append([Piece], ChosenStack, NewStack);
                                                     append([Player], ChosenStack, NewStack)
-                                                ),
+                                                ), !,
                                                 generate_board(Board, Row/Col, ChosenRow, NewStack, NewBoard).
 
 turn_change(triangle, circle).
@@ -112,9 +119,16 @@ non_empty_stack(Board, Row/Col) :- get_stack(Board, Row/Col, ChosenStack),
 
 reduce_pieces :- total_pieces(Pieces), NewPieces is Pieces-1, retract(total_pieces(_)), assertz(total_pieces(NewPieces)).
 
-valid_moves().
+valid_moves(GameState, Moves) :- findall(Move, move(GameState, Move, piece, NewGameState), Moves).
 
-% check for 4 in a row
+valid_moves(Board-Player, Moves, Row/Col) :-  get_stack(Board, Row/Col, ChosenStack),
+                                                findall(Move, move_stack(Board, Move, Row/Col, ChosenStack, NewGameState), AllMoves),
+                                                include(no_backtracking(PrevMove), AllMoves, CodeMoves),
+                                                convert_to_atom(CodeMoves, Moves).
+
+convert_to_atom([], []).
+convert_to_atom([Move | T], [AtomMove | T2]) :- atom_codes(AtomMove, Move), convert_to_atom(T, T2).
+
 game_over(Board-Player, Winner, TurnsLeft) :- (
                                                 four_in_line(Board, Winner);
                                                 no_turns_left(TurnsLeft, Winner)
