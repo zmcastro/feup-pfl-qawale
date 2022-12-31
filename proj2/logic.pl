@@ -137,7 +137,7 @@ four_in_line(Board, circle) :- stone_char(circle, Char),
 
 row_check(Board, Winner) :- member([[Winner | _], [Winner | _], [Winner | _], [Winner | _]], Board).
 
-column_check(Board, Winner) :- transpose(Board, TransBoard), member([[Winner | _], [Winner | _], [Winner | _], [Winner | _]], TransBoard).
+column_check(Board, Winner) :- transpose(Board, TransBoard), row_check(TransBoard, Winner).
 
 diagonal_check(Board, Winner) :- Board = [[[Winner | _], _, _, _],
                                           [_, [Winner | _], _, _],
@@ -155,3 +155,5 @@ replace([H|T], I, X, [H|R]):- I > 1, I1 is I-1, replace(T, I1, X, R).
 
 pop_back([_], []).
 pop_back([H|T], [H|T2]) :- pop_back(T, T2).
+
+
