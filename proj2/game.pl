@@ -40,7 +40,7 @@ start :- size(Size),
 % On game over, the loop ends.
 game_loop(GameState-PlayerType, TurnsLeft) :- game_over(GameState, Winner, TurnsLeft), !,
                                               winner_message(Winner),
-                                              format('~n~nGAME OVER~n~n').
+                                              format('~n~nGAME OVER~n~n',[]).
 game_loop(GameState-PlayerType, TurnsLeft) :- ask_move(GameState, PlayerType, PieceMove, piece, TurnsLeft),
                                    move(GameState, PieceMove, piece, MidGameState),
                                    ask_move(MidGameState, PlayerType, StackMove, PieceMove, stack, TurnsLeft),
@@ -64,13 +64,13 @@ ask_move(Board-Player, h, MovementString, PieceMove, stack, TurnsLeft) :- repeat
                                                                get_stack(Board, PieceMove, Stack),
                                                                format('~nStack to be moved: ~w~n~n', [Stack]),
                                                                format('~w, where will you move your stack? (Input a string of characters X, such that:~n', [Player]),
-                                                               format('X is formed by "n", "s", "w" or "e" (North, South, East, West), and you cannot move to where you were directly before (Which means no "ns", "ew", "we", etc.).~n'),
-                                                               format('Make sure the length of your string matches the length of the stack you are moving.~n'),
-                                                               format('The first piece to be placed is the one on the right.~n'),
+                                                               format('X is formed by "n", "s", "w" or "e" (North, South, East, West), and you cannot move to where you were directly before (Which means no "ns", "ew", "we", etc.).~n',[]),
+                                                               format('Make sure the length of your string matches the length of the stack you are moving.~n',[]),
+                                                               format('The first piece to be placed is the one on the right.~n',[]),
                                                                read(MovementString),
                                                                downcase_atom(MovementString, Move),
                                                                move(Board-Player, Move, PieceMove, stack, _).
 
-winner_message(triangle) :- format('You are a player of acute intelligence. Nice win, triangle!').
-winner_message(circle) :- format('A round of applause to the winner: circle!').
-winner_message(draw) :- format('After a true display of skill, the match unfortunately ends in a draw.').
+winner_message(triangle) :- format('You are a player of acute intelligence. Nice win, triangle!',[]).
+winner_message(circle) :- format('A round of applause to the winner: circle!',[]).
+winner_message(draw) :- format('After a true display of skill, the match unfortunately ends in a draw.',[]).

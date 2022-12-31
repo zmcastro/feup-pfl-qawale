@@ -96,7 +96,7 @@ display_board_line([[Char | Chars] | T], Sep) :- write(Char),
 
 % display_stack_handler(+Board, +Size)
 % Display the state of each stack on the board, along with a message explaining the ordering of stacks.
-display_stack_handler(Board, Size) :- format('Stacks in play: (Organized by Row/Column, Left = Stack Top, Right = Stack Bottom)~n~n'),
+display_stack_handler(Board, Size) :- format('Stacks in play: (Organized by Row/Column, Left = Stack Top, Right = Stack Bottom)~n~n',[]),
                                       display_stack_list(Board, 0, Size).
 
 % display_stack_list(+Board, +Index, +Size)
@@ -108,7 +108,7 @@ display_stack_list([Row | T], Index, Size) :-    RowIndex is Index + 1,
 
 % display_row_stacks(+Row, +Coordinates, +ColumnIndex, +Size)
 % Display the pieces of each stack on the current row.
-display_row_stacks(_, _/Size, Size) :- format('~n~n').
+display_row_stacks(_, _/Size, Size) :- format('~n~n',[]).
 display_row_stacks([Stack | T], Row/Col, Size) :- NewCol is Col + 1,
                                                                 atomics_to_string(Stack, '', String),
                                                                 format('~w/~w = [~w] ', [Row, NewCol, String]),
