@@ -120,7 +120,7 @@ display_row_stacks([Stack | T], Row/Col, Size) :- NewCol is Col + 1,
 valid_player(h).
 valid_player(c1).
 valid_player(c2).
-validate_gamemode(P1/P2) :- valid_player(P1), valid_player(P2).
+validate_gamemode(P1/P2) :- valid_player(P1), valid_player(P2), write('Gamemode valid!'), nl.
 
 set_gamemode :- format('Which gamemode do you want to play?~nSpecify it using "P1/P2". Options are "h" (Human) and "c{1/2}" (Computer-Level).~n', []),
                 read(Gamemode),
