@@ -15,7 +15,7 @@ initial_state(Size, Board-triangle) :- Size > 3,
 
 fill_edge_row(Size, EdgeChar, Row) :- NewSize is Size-2, 
                                       fill_row(NewSize, MiddleRow),
-                                      append(MiddleRow, [[EdgeChar, EdgeChar]], TailRow),
+                                      append(MiddleRow, [['\x25CF\', '\x25CF\']], TailRow),
                                       append([[EdgeChar, EdgeChar]], TailRow, Row).
 
 fill_row(0, []).
@@ -122,12 +122,44 @@ reduce_pieces :- total_pieces(Pieces), NewPieces is Pieces-1, retract(total_piec
 valid_moves(GameState, Moves) :- findall(Move, move(GameState, Move, piece, NewGameState), Moves).
 
 valid_moves(Board-Player, Moves, Row/Col) :-  get_stack(Board, Row/Col, ChosenStack),
-                                                findall(Move, move_stack(Board, Move, Row/Col, ChosenStack, NewGameState), AllMoves),
-                                                include(no_backtracking(PrevMove), AllMoves, CodeMoves),
-                                                convert_to_atom(CodeMoves, Moves).
+                                              findall(Move, move_stack(Board, Move, Row/Col, ChosenStack, NewGameState), AllMoves),
+                                              include(no_backtracking(PrevMove), AllMoves, CodeMoves),
+                                              convert_to_atom(CodeMoves, Moves).
 
 convert_to_atom([], []).
 convert_to_atom([Move | T], [AtomMove | T2]) :- atom_codes(AtomMove, Move), convert_to_atom(T, T2).
+
+/* get_all_stacks(_, 4/5, Stacks).
+get_all_stacks(Board, Row/5, Stacks) :- NewRow is Row + 1,
+                                        get_all_stacks(Board, NewRow/1, Stacks).
+get_all_stacks(Board, Row/Col, [[Row/Col, ChosenStack] | T]) :- Row > 0, Col > 0, 
+                                                     get_stack(Board, Row/Col, ChosenStack),
+                                                     NewCol is Col + 1,
+                                                     get_all_stacks(Board, Row/NewCol, T). */
+
+value(Board-Player, Row/Col, Value) :- get_stack(Board, Row/Col, Stack),
+                                       stone_char(Player, PlayerChar),
+                                       count(PlayerChar, Stack, Value), !.
+
+% get best placement
+/* best_placement(_, _, [], BestWeight, BestPlacement).
+best_placement(Board, Player, [Placement | T], BestWeight, BestPlacement) :- get_stack(Board, Placement, CurrentStack),
+                                                                              evaluate_stack(Player, CurrentStack, Weight),
+                                                                              (
+                                                                                  Weight > BestWeight,
+                                                                                  best_placement(Board, Player, T, Weight, Placement),
+                                                                                  write("better placement!")
+                                                                              ;
+                                                                                  best_placement(Board, Player, T, BestWeight, BestPlacement)
+                                                                              ).
+                                                                       */
+% listofMoves, MaxValue, BestMove (based on maxVal)
+best_move([], _/_).
+best_move([Move | T], BestWeight, BestMove).
+
+generate_placement(Board-Player, Placement) :- valid_moves(Board-Player, Placements),
+                                               stone_char(Player, PlayerChar),
+                                               best_placement(Board, PlayerChar, Placements, -1, Placement).                                               
 
 game_over(Board-Player, Winner, TurnsLeft) :- (
                                                 four_in_line(Board, Winner);
@@ -162,8 +194,6 @@ diagonal_check(Board, Winner) :- Board = [[[Winner | _], _, _, _],
                                           [_, [Winner | _], _, _],
                                           [[Winner | _], _, _, _]].
 
-value().
-
 replace([_|T], 1, X, [X|T]).
 replace([H|T], I, X, [H|R]):- I > 1, I1 is I-1, replace(T, I1, X, R).
 
@@ -171,3 +201,9 @@ pop_back([_], []).
 pop_back([H|T], [H|T2]) :- pop_back(T, T2).
 
 
+% utils 
+
+count(_, [], 0).
+count(Elem, [ Elem | T ], N) :- count(Elem, T, N1),
+                                N is N1 + 1.
+count(Elem, [ _ | T ], N) :- count(Elem, T, N).

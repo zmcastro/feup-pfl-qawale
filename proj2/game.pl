@@ -34,7 +34,7 @@ main_menu(4) :- write('Goodbye!').
 start :- size(Size),
          total_pieces(Pieces),
          initial_state(Size, GameState),
-         display_game(GameState),
+         % display_game(GameState),
          gamemode(PlayerOneType/_),
          game_loop(GameState-PlayerOneType, Pieces).
 
@@ -64,8 +64,8 @@ ask_move(Board-Player, h, Row/Col, piece, TurnsLeft) :- repeat,
                                                          number(Row), number(Col),
                                                          Row > 0, Col > 0,
                                                          move(Board-Player, Row/Col, piece, _).
-ask_move(Board-Player, ComputerLevel, Move, piece, TurnsLeft) :- choose_move(ComputerLevel, Board-Player, Move, piece),
-                                                        format('Beep. I place my piece here: ~w', [Move]).
+ask_move(Board-Player, ComputerLevel, Placement, piece, TurnsLeft) :- choose_move(ComputerLevel, Board-Player, Placement, piece),
+                                                                 format('Beep. I place my piece here: ~w', [Placement]).
 ask_move(Board-Player, h, Move, PieceMove, stack, TurnsLeft) :- repeat,
                                                                get_stack(Board, PieceMove, Stack),
                                                                format('~nStack to be moved: ~w~n~n', [Stack]),
@@ -80,9 +80,14 @@ ask_move(Board-Player, ComputerLevel, Move, PieceMove, stack, TurnsLeft) :- choo
 
 choose_move(c1, GameState, Move, piece) :- valid_moves(GameState, Moves), 
                                           random_select(Move, Moves, _).
+choose_move(c2, GameState, Placement, piece) :- setof(Value-Move, NewState^(move(GameState, Move, piece, NewState), 
+                                                value(NewState, Move, Value) ), Results),
+                                                last(Results, _-Placement).
+
 choose_move(c1, GameState, Move, Row/Col, stack) :- valid_moves(GameState, Moves, Row/Col),
                                                    random_select(Move, Moves, _).
-
+choose_move(c2, GameState, Move, Row/Col, stack) :- valid_moves(GameState, Moves, Row/Col),
+                                                   random_select(Move, Moves, _).
 
 winner_message(triangle) :- format('You are a player of acute intelligence. Nice win, triangle!',[]).
 winner_message(circle) :- format('A round of applause to the winner: circle!',[]).

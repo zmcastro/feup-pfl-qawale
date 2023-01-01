@@ -5,7 +5,7 @@ encoding(utf8).
 %
 
 :- dynamic gamemode/1, size/1.
-gamemode(h/c1).
+gamemode(h/c2).
 size(4).
 
 total_pieces(16).
