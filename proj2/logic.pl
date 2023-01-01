@@ -15,7 +15,7 @@ initial_state(Size, Board-triangle) :- Size > 3,
 
 fill_edge_row(Size, EdgeChar, Row) :- NewSize is Size-2, 
                                       fill_row(NewSize, MiddleRow),
-                                      append(MiddleRow, [[EdgeChar, EdgeChar]], TailRow),
+                                      append(MiddleRow, [['\x25B2\', '\x25B2\']], TailRow),
                                       append([[EdgeChar, EdgeChar]], TailRow, Row).
 
 fill_row(0, []).
@@ -134,6 +134,17 @@ convert_to_atom([Move | T], [AtomMove | T2]) :- atom_codes(AtomMove, Move), conv
 value(Board-Player, Row/Col, Value) :- get_stack(Board, Row/Col, Stack),
                                        stone_char(Player, PlayerChar),
                                        count(PlayerChar, Stack, Value), !.
+value(Board-Player, Value) :- (
+                                game_over(Board-Player, _, 1), Value = 99
+                              ; top_piece_list(Board, NestedLists),
+                                append(NestedLists, List),
+                                stone_char(Player, PlayerChar),
+                                count(PlayerChar, List, PlayerValue),
+                                turn_change(Player, Opponent),
+                                stone_char(Opponent, OpponentChar),
+                                count(OpponentChar, List, OpponentValue),
+                                Value is PlayerValue-OpponentValue
+                              ).
 
 
 game_over(Board-Player, Winner, TurnsLeft) :- (
@@ -185,3 +196,10 @@ count(_, [], 0).
 count(Elem, [ Elem | T ], N) :- count(Elem, T, N1),
                                 N is N1 + 1.
 count(Elem, [ _ | T ], N) :- count(Elem, T, N).
+
+top_piece_list([], []).
+top_piece_list([Row | T], [List | T2]) :- row_piece_list(Row, List), top_piece_list(T, T2).
+
+row_piece_list([], []).
+row_piece_list([[] | T], [' ' | T2]) :- row_piece_list(T, T2).
+row_piece_list([[Piece | Pieces] | T], [Piece | T2]) :- row_piece_list(T, T2).

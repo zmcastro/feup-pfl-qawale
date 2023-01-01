@@ -73,16 +73,17 @@ ask_move(Board-Player, h, Move, PieceMove, stack, TurnsLeft) :- repeat,
 ask_move(Board-Player, ComputerLevel, Move, PieceMove, stack, TurnsLeft) :- choose_move(ComputerLevel, Board-Player, Move, PieceMove, stack),
                                                                 format('~nBoop. I move the stack like this: ~w~n~n', [Move]).
 
-choose_move(c1, GameState, Move, piece) :- valid_moves(GameState, Moves), 
-                                          random_select(Move, Moves, _).
+choose_move(c1, GameState, Placement, piece) :- valid_moves(GameState, Moves), 
+                                          random_select(Placement, Moves, _).
 choose_move(c2, GameState, Placement, piece) :- setof(Value-Move, NewState^(move(GameState, Move, piece, NewState), 
                                                 value(NewState, Move, Value) ), Results),
                                                 last(Results, _-Placement).
-
 choose_move(c1, GameState, Move, Row/Col, stack) :- valid_moves(GameState, Moves, Row/Col),
-                                                   random_select(Move, Moves, _).
-choose_move(c2, GameState, Move, Row/Col, stack) :- valid_moves(GameState, Moves, Row/Col),
-                                                   random_select(Move, Moves, _).
+                                                    random_select(Move, Moves, _).
+choose_move(c2, Board-Player, Move, Row/Col, stack) :- get_stack(Board, Move, Stack),
+                                                      setof(Value-Move, NewState^(move(GameState, Move, Row/Col, stack, NewState), 
+                                                      value(NewState, Value)), Results),
+                                                      last(Results, _-Placement).
 
 winner_message(triangle) :- format('You are a player of acute intelligence. Nice win, triangle!',[]).
 winner_message(circle) :- format('A round of applause to the winner: circle!',[]).
