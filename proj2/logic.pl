@@ -15,7 +15,7 @@ initial_state(Size, Board-triangle) :- Size > 3,
 
 fill_edge_row(Size, EdgeChar, Row) :- NewSize is Size-2, 
                                       fill_row(NewSize, MiddleRow),
-                                      append(MiddleRow, [['\x25CF\', '\x25CF\']], TailRow),
+                                      append(MiddleRow, [[EdgeChar, EdgeChar]], TailRow),
                                       append([[EdgeChar, EdgeChar]], TailRow, Row).
 
 fill_row(0, []).
