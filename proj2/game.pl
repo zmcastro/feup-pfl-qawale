@@ -10,7 +10,7 @@ play :- main_menu.
 % main_menu/0
 % Displays a menu with various options. Loops until it receives a valid input.
 main_menu :- repeat,
-             format('What would you like to do?~n1- Choose gamemode~n2- Choose board size~n3- Start the game~n4- Exit the program~nDo not forget to add a dot after every input!~n', []),
+             format('What would you like to do?~n1- Choose gamemode~n2- Start the game~n3- Exit the program~nDo not forget to add a dot after every input!~n', []),
              read(Option),
              (
                 Option = 4, main_menu(Option);
@@ -20,14 +20,9 @@ main_menu :- repeat,
 
 % main_menu(+Option)
 % Calls the appropriate function based on the option chosen.
-main_menu(1) :- write('Chose gamemode.'), nl.
-main_menu(2) :- size(Size),
-                total_pieces(Pieces),
-                initial_state(Size, GameState),
-                valid_moves(GameState, Moves),
-                format('~n~w~n', [Moves]).
-main_menu(3) :- start.
-main_menu(4) :- write('Goodbye!').
+main_menu(1) :- set_gamemode.
+main_menu(2) :- start.
+main_menu(3) :- write('Goodbye!').
 
 % start/0
 % Starts the game, initializing the board and entering the game loop.

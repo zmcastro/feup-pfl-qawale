@@ -129,37 +129,12 @@ valid_moves(Board-Player, Moves, Row/Col) :-  get_stack(Board, Row/Col, ChosenSt
 convert_to_atom([], []).
 convert_to_atom([Move | T], [AtomMove | T2]) :- atom_codes(AtomMove, Move), convert_to_atom(T, T2).
 
-/* get_all_stacks(_, 4/5, Stacks).
-get_all_stacks(Board, Row/5, Stacks) :- NewRow is Row + 1,
-                                        get_all_stacks(Board, NewRow/1, Stacks).
-get_all_stacks(Board, Row/Col, [[Row/Col, ChosenStack] | T]) :- Row > 0, Col > 0, 
-                                                     get_stack(Board, Row/Col, ChosenStack),
-                                                     NewCol is Col + 1,
-                                                     get_all_stacks(Board, Row/NewCol, T). */
+% AI
 
 value(Board-Player, Row/Col, Value) :- get_stack(Board, Row/Col, Stack),
                                        stone_char(Player, PlayerChar),
                                        count(PlayerChar, Stack, Value), !.
 
-% get best placement
-/* best_placement(_, _, [], BestWeight, BestPlacement).
-best_placement(Board, Player, [Placement | T], BestWeight, BestPlacement) :- get_stack(Board, Placement, CurrentStack),
-                                                                              evaluate_stack(Player, CurrentStack, Weight),
-                                                                              (
-                                                                                  Weight > BestWeight,
-                                                                                  best_placement(Board, Player, T, Weight, Placement),
-                                                                                  write("better placement!")
-                                                                              ;
-                                                                                  best_placement(Board, Player, T, BestWeight, BestPlacement)
-                                                                              ).
-                                                                       */
-% listofMoves, MaxValue, BestMove (based on maxVal)
-best_move([], _/_).
-best_move([Move | T], BestWeight, BestMove).
-
-generate_placement(Board-Player, Placement) :- valid_moves(Board-Player, Placements),
-                                               stone_char(Player, PlayerChar),
-                                               best_placement(Board, PlayerChar, Placements, -1, Placement).                                               
 
 game_over(Board-Player, Winner, TurnsLeft) :- (
                                                 four_in_line(Board, Winner);
@@ -185,14 +160,17 @@ row_check(Board, Winner) :- member([[Winner | _], [Winner | _], [Winner | _], [W
 
 column_check(Board, Winner) :- transpose(Board, TransBoard), row_check(TransBoard, Winner).
 
-diagonal_check(Board, Winner) :- Board = [[[Winner | _], _, _, _],
-                                          [_, [Winner | _], _, _],
-                                          [_, _, [Winner | _], _],
-                                          [_, _, _, [Winner | _]]];
-                                 Board = [[_, _, _, [Winner | _]],
-                                          [_, _, [Winner | _], _],
-                                          [_, [Winner | _], _, _],
-                                          [[Winner | _], _, _, _]].
+diagonal_check(Board, Winner) :- (
+                                    Board = [[[Winner | _], _, _, _],
+                                            [_, [Winner | _], _, _],
+                                            [_, _, [Winner | _], _],
+                                            [_, _, _, [Winner | _]]]
+                                ;
+                                    Board = [[_, _, _, [Winner | _]],
+                                            [_, _, [Winner | _], _],
+                                            [_, [Winner | _], _, _],
+                                            [[Winner | _], _, _, _]]
+                                ).
 
 replace([_|T], 1, X, [X|T]).
 replace([H|T], I, X, [H|R]):- I > 1, I1 is I-1, replace(T, I1, X, R).
