@@ -146,6 +146,18 @@ value(Board-Player, Value) :- (
                                 Value is PlayerValue-OpponentValue
                               ).
 
+value(Board-Player, Value) :- (
+                                game_over(Board-Player, _, 1), Value = 99
+                                ; 
+                                top_piece_list(Board, NestedLists),
+                                append(NestedLists, List),
+                                stone_char(Player, PlayerChar),
+                                count(PlayerChar, List, PlayerValue),
+                                turn_change(Player, Opponent),
+                                stone_char(Opponent, OpponentChar),
+                                count(OpponentChar, List, OpponentValue),
+                                Value is PlayerValue-OpponentValue
+                              ).
 
 game_over(Board-Player, Winner, TurnsLeft) :- (
                                                 four_in_line(Board, Winner);

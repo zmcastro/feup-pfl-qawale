@@ -117,19 +117,18 @@ display_row_stacks([Stack | T], Row/Col, Size) :- NewCol is Col + 1,
 %
 % Other Menu Options
 %                   
+valid_player(h).
+valid_player(c1).
+valid_player(c2).
+validate_gamemode(P1/P2) :- valid_player(P1), valid_player(P2).
 
-set_gamemode(1) :- assertz(gamemode(h/h)), write('gamemode1').
-set_gamemode(2) :- assertz(gamemode(h/c1)), write('gamemode2').
-set_gamemode(3) :- assertz(gamemode(h/c2)), write('gamemode3').
-set_gamemode(4) :- assertz(gamemode(c1/c2)), write('gamemode4').
-set_gamemode :- write('Which gamemode do you want to play?'), nl,
-                format('1 - Human vs Human~n2 - Human vs Easy AI~n3 - Human vs Hard AI~n4 - Easy AI vs Hard AI', []), nl,
+set_gamemode :- format('Which gamemode do you want to play?~nSpecify it using "P1/P2". Options are "h" (Human) and "c{1/2}" (Computer-Level).~n', []),
                 read(Gamemode),
-                integer(Gamemode), Gamemode < 5,
+                validate_gamemode(Gamemode),
                 retract(gamemode(_)), 
-                set_gamemode(Gamemode),
+                assert(gamemode(Gamemode)),
                 !.
-
+set_gamemode :- error_message.
 
 % get_boardsize/0
 % Get and reset the size of the board to be used in-game. (To be scraped?)

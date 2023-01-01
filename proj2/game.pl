@@ -85,6 +85,7 @@ choose_move(c2, Board-Player, Move, Row/Col, stack) :- get_stack(Board, Move, St
                                                       value(NewState, Value)), Results),
                                                       last(Results, _-Placement).
 
+
 winner_message(triangle) :- format('You are a player of acute intelligence. Nice win, triangle!',[]).
 winner_message(circle) :- format('A round of applause to the winner: circle!',[]).
 winner_message(draw) :- format('After a true display of skill, the match unfortunately ends in a draw.',[]).
