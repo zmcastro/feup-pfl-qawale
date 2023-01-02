@@ -61,18 +61,20 @@ For the game's board itself, we used the `board_chars` predicate to construct an
 
 ![start_display](docs/start_display.png)
 
+Each of the player's turns are either asked and validated (if the player is human) or calculated if the player is a computer. The `ask_move(+GameState, +PlayerType, +Placement, +TurnsLeft, -Move)` predicate returns a move (piece placement and stack movement) after validating player input through catching `read` errors and checking for valid piece placement and movement in the `move` function, detailed in the next section of this report.
+
 ## 3.3 Moves Execution
 
 Move validation checks for out-of-bounds inputs and illegal stack movements. the `move` predicate has two variants depending on the move it is performing: a piece placement move (first part of a user's turn) or a stack movement move (latter part). Both of these executions use the `GameState` (Board/Player pair)
 and the movement input to validate and return a new GameState. <br>
-- *`move(Board-Player, Row/Col, piece, NewBoard-Player)`* - Takes in a Row/Col position pair to validate and return a GameState that will be used in the second part of the turn.
-- *`move(Board-Player, Move, Row/Col, stack, NewBoard-NextPlayer)`* - Takes in a Row/Col position pair where the previous stack will be moved to. With this, it validates the move and rearranges the stack if there was one at that position, returning a GameState ready for the next turn.
+- *`move(+Board-Player, +Row/Col, piece, -NewBoard-Player)`* - Takes in a Row/Col position pair to validate and return a GameState that will be used in the second part of the turn. To enact the piece placement, Row/Col are validated through the `allowed_move` predicate, which checks for a non-empty stack in the position.
+- *`move(+Board-Player, +Move, Row/Col, stack, -NewBoard-NextPlayer)`* - Takes in a Row/Col position pair where the previous stack will be moved to. With this, it validates the move - by checking if it is a valid placement and if this position wasn't previously passed through without circling - and rearranges the stack if there was one at that position, returning a GameState ready for the next turn.
 
 ## 3.4 List of Valid Moves 
 
 Valid moves are listed with the predicate `valid_moves`. Again, this function has two variants: one for piece placement and one for stack movement.
-- `valid_moves(GameState, Moves)` - Returns a list of valid piece placements (stack positions).
-- `valid_moves(Board-Player, Row/Col, Moves)` - Returns a list of valid stack movements. These movements are comprised of a string of characters symbolising a series of cardinal directions ('n'orth, 'w'est, 'e'ast, 's'outh).
+- `valid_moves(+GameState, -Moves)` - Returns a list of valid piece placements (stack positions).
+- `valid_moves(+Board-Player, +Row/Col, -Moves)` - Returns a list of valid stack movements. These movements are comprised of a string of characters symbolising a series of cardinal directions ('n'orth, 'w'est, 'e'ast, 's'outh).
 
 ## 3.5 End of Game 
 
@@ -82,15 +84,18 @@ The `game_over(+GameState, -Winner)` checks for 4-in-a-line's in the game's boar
 
 For board evaluation. `value` has two variants, one for each part of a user's turn. 
 
-- `value(Board-Player, Row/Col, Value)` - Evaluates piece placement. Analyses the board and gives a calculated weight to a Row/Col position depending on the turn's player. A move's weight is calculated by counting the number of pieces in the specified position's stack.
+- `value(+Board-Player, +Row/Col, -Value)` - Evaluates piece placement. Analyses the board and gives a calculated weight to a Row/Col position depending on the turn's player. A move's weight is calculated by counting the number of pieces in the specified position's stack.
 
-- `value(Board-Player, Value)` - Evaluates a board depending on the player being analysed. This predicate is used to weigh a possible move's returning board. The board's value is increased by the number of player pieces in the board and
+- `value(+Board-Player, -Value)` - Evaluates a board depending on the player being analysed. This predicate is used to weigh a possible move's returning board. The board's value is increased by the number of player pieces in the board and
 decreased by the number of opponent pieces. If the board represents a game over (winning) situation, its value is automatically set to 99.
-
-# `BOARD EVAL TO BE FINISHED`
 
 ## 3.7 Computer Move
 
-As stated in the project's requirements, the level 1 difficulty computer will always perform randomized placements and movements. The level 2 computer, however, makes use of the board evaluation functions and calculates
+As stated in the project's requirements, the level 1 difficulty computer will always perform randomized placements and movements. The level 2 computer, however, makes use of the board evaluation functions explained in the previous section and calculates what move it should perform based on these moves. There are two predicates for computer movement, one for the piece placement and the other one for the stack movement.
+
+- `choose_move(+ComputerLevel, +GameState, -Placement)` - Receives a computer level and a GameState and returns either a random placement if the computer level is 1 or the most valued placement (using the `value` predicate) if the computer level is 2. If there exists more than 1 placement with the highest value, the chosen move is randomized between these best possible placements.
+- `choose_move(+ComputerLevel, +GameState, +Placement, -Move)` - Receives a computer level, a GameState and a placement, returning the highest rated move. Based on the GameState and the previously chosen piece placement, a list of valid stack movements are calculated and weighed against eachother, using the `value` predicate. If there exists more than one movement with the highest weight, the chosen movement will be randomized between these.
+
+
 
 
