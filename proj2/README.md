@@ -51,7 +51,7 @@ To initialize and setup the game, `initial_state(+Size, -GameState)` is called. 
 
 ### Examples
 
-These examples represent a state captured right after a full stack movement, except for the initial state.
+These examples represent a state captured right after a full stack movement, except for the initial state. Spacing after every comma was added manually in this document to improve readability.
 
 **Initial state**
 ```
@@ -63,18 +63,18 @@ These examples represent a state captured right after a full stack movement, exc
 
 **Intermediate state**
 ```
-[[[▲,■,■],[],[■],[]],
-[[],[],[■],[▲]],
-[[],[●],[▲,●,■,▲],[▲,●,■]],
-[[],[],[■,●,■,●],[▲,●,▲]]]-triangle
+[[[▲, ■, ■], [], [■], []],
+[[], [], [■], [▲]],
+[[], [●], [▲, ●, ■, ▲], [▲, ●, ■]],
+[[], [], [■, ●, ■, ●],[▲, ●, ▲]]]-triangle
 ```
 
 **Final state**
 ```
-[[[▲,●,▲],[●],[],[]],
-[[■,●],[●,▲,■,▲],[●,■],[■]],
-[[▲],[●,▲,●,▲,■,▲],[],[■]],
-[[],[●],[],[■,■]]]-circle
+[[[▲, ●, ▲], [●], [], []], 
+[[■, ●], [●, ▲, ■, ▲], [●, ■], [■]], 
+[[▲], [●, ▲, ●, ▲, ■, ▲], [], [■]], 
+[[], [●], [], [■, ■]]]-circle
 
 circle scored a 4-in-a-column, on column 2.
 ```
