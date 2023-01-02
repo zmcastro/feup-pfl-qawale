@@ -96,6 +96,8 @@ As stated in the project's requirements, the level 1 difficulty computer will al
 - `choose_move(+ComputerLevel, +GameState, -Placement)` - Receives a computer level and a GameState and returns either a random placement if the computer level is 1 or the most valued placement (using the `value` predicate) if the computer level is 2. If there exists more than 1 placement with the highest value, the chosen move is randomized between these best possible placements.
 - `choose_move(+ComputerLevel, +GameState, +Placement, -Move)` - Receives a computer level, a GameState and a placement, returning the highest rated move. Based on the GameState and the previously chosen piece placement, a list of valid stack movements are calculated and weighed against eachother, using the `value` predicate. If there exists more than one movement with the highest weight, the chosen movement will be randomized between these.
 
+# 4. Conclusions
 
-
-
+All in all, this project helped us come to grips with Prolog as a logical programming language, especially in its backtracking aspects. At first, we weren't sure how to build a game in a language that differed so much from what we're used to, but Prolog's condensed and powerful predicates helped us construct a decent write-up of a board game without much trouble, helping us tremendously with its backtracking in the computer-player implementation. <br>
+Since Qawale is a two-part movement game in which the players decide where to put the piece and also where to distribute the stack to, one limitation of our work is that the computer movements are limited by the piece placement, as their movement will always be dictated by what is picked in that part of the move. The stack distribution, while still greedy in its nature, never checks other possible piece placements that weren't as highly valued to further improve the probability it always chooses the best two-part play.
+A possible improvement would be better organization of the code. 
