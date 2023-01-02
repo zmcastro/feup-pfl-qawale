@@ -15,7 +15,7 @@ initial_state(Size, Board-triangle) :- Size > 3,
 
 fill_edge_row(Size, EdgeChar, Row) :- NewSize is Size-2, 
                                       fill_row(NewSize, MiddleRow),
-                                      append(MiddleRow, [['\x25B2\', '\x25B2\']], TailRow),
+                                      append(MiddleRow, [[EdgeChar, EdgeChar]], TailRow),
                                       append([[EdgeChar, EdgeChar]], TailRow, Row).
 
 fill_row(0, []).
@@ -121,7 +121,7 @@ reduce_pieces :- total_pieces(Pieces), NewPieces is Pieces-1, retract(total_piec
 
 valid_moves(GameState, Moves) :- findall(Move, move(GameState, Move, piece, NewGameState), Moves).
 
-valid_moves(Board-Player, Moves, Row/Col) :-  get_stack(Board, Row/Col, ChosenStack),
+valid_moves(Board-Player, Row/Col, Moves) :-  get_stack(Board, Row/Col, ChosenStack),
                                               findall(Move, move_stack(Board, Move, Row/Col, ChosenStack, NewGameState), AllMoves),
                                               include(no_backtracking(PrevMove), AllMoves, CodeMoves),
                                               convert_to_atom(CodeMoves, Moves).

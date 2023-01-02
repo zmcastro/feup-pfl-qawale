@@ -29,7 +29,7 @@ main_menu(3) :- write('Goodbye!').
 start :- size(Size),
          total_pieces(Pieces),
          initial_state(Size, GameState),
-         % display_game(GameState),
+         display_game(GameState),
          gamemode(PlayerOneType/_),
          game_loop(GameState-PlayerOneType, Pieces).
 
