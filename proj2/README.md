@@ -147,5 +147,6 @@ Some improvements could be done, such as organizing the code better, as well as 
 
 - **Qawale rulebook** - Found [here](https://randolphca.sharepoint.com/sites/Public/Documents%20partages/Forms/AllItems.aspx?id=%2Fsites%2FPublic%2FDocuments%20partages%2FSales%20%2D%20Ventes%2FTOOLS%20%2D%20OUTILS%2FVisuels%20jeux%20%2D%20Games%20Visual%2FUSA%2FQawale%20%2D%20media%20kit%2FQawale%20%2D%20rules%2Epdf&parent=%2Fsites%2FPublic%2FDocuments%20partages%2FSales%20%2D%20Ventes%2FTOOLS%20%2D%20OUTILS%2FVisuels%20jeux%20%2D%20Games%20Visual%2FUSA%2FQawale%20%2D%20media%20kit&p=true&ga=1)
 - **Course Unit documentation**
+- **SICSTUS Prolog documentation** - https://sicstus.sics.se/sicstus/docs/latest4/html/sicstus.html/
 - **SWI-Prolog documentation** - https://www.swi-prolog.org/
   - (Even though the project is done for SICSTUS, SWI-Prolog's website provided a 99% compatible documentation of predicates, except for a couple of ones we had to change during development).

@@ -57,11 +57,11 @@ move(Board-Player, Placement, NewBoard-Player) :- allowed_move(Board, Placement)
 
 % move(+GameState, +Move, +Placement, -NewGameState)
 % Move the stack in Placement, according to the Move string.
-move(Board-Player, Move, Row/Col, NewBoard-NextPlayer) :- allowed_move(Board, Move, MoveList),
-                                                          get_stack(Board, Row/Col, ChosenStack),
+move(Board-Player, Move, Row/Col, NewBoard-NextPlayer) :- get_stack(Board, Row/Col, ChosenStack),
                                                           get_row(Board, Row, ChosenRow),
                                                           generate_board(Board, Row/Col, ChosenRow, [], MidBoard),
                                                           turn_change(Player, NextPlayer),
+                                                          allowed_move(Board, Move, MoveList),
                                                           move_stack(MidBoard, MoveList, Row/Col, ChosenStack, BoardList),
                                                           last(BoardList, NewBoard).
 
