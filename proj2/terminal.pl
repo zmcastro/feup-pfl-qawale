@@ -11,20 +11,21 @@ size(4).
 total_pieces(16).
 
 %
-% ASCII Character Dictionaries
+% ASCII Character Lists
 %
 
-% get_chars(?BoardPosition, ?CharArray)
+% board_chars(?BoardPosition, ?CharArray)
 % Depending on the entity to be rendered, return an array of characters to be displayed in the terminal.
-get_chars(border-top, ['\x256D\', '\x2500\', '\x256E\']).
-get_chars(border-bottom, ['\x2570\', '\x2500\', '\x256F\']).
-get_chars(border-sep, ['\x2502\', '|']).
-get_chars(board-stones, ['\x25B2\', '\x25A0\', '\x25CF\']).
-get_chars(board-empty, [' ']).
+board_chars(border-top, ['\x256D\', '\x2500\', '\x256E\']).
+board_chars(border-bottom, ['\x2570\', '\x2500\', '\x256F\']).
+board_chars(border-sep, ['\x2502\', '|']).
+board_chars(board-empty, ' ').
 
-stone_char(triangle, '\x25B2\').
-stone_char(circle, '\x25CF\').
-stone_char(neutral, '\x25A0\').
+% piece_char(?Player, ?PlayerChar)
+% Return the character that represents the given player.
+piece_char(triangle, '\x25B2\').
+piece_char(circle, '\x25CF\').
+piece_char(neutral, '\x25A0\').
 
 %
 % Game Display
@@ -60,7 +61,7 @@ display_row_coordinates(Index) :- format('~w ', [Index]).
 
 % display_border(+Size, +Side)
 % Display the correct border according to the side given (top or bottom).
-display_border(Size, Side) :- get_chars(border-Side, [LeftEdge, Middle, RightEdge]), 
+display_border(Size, Side) :- board_chars(border-Side, [LeftEdge, Middle, RightEdge]), 
                               format('  ~w', [LeftEdge]), display_straight_border(Size, Middle), write(RightEdge), nl.
 
 % display_straight_border(+Size, +Char)
@@ -71,7 +72,7 @@ display_straight_border(Size, Char) :- write(Char), write(Char), NewSize is Size
 % display_lines(+Lines, +Index)
 % Display each row of the board, including coordinates and border.
 display_lines([], _).
-display_lines([Line | T], Index) :- get_chars(border-sep, [SideEdge, Sep]),
+display_lines([Line | T], Index) :- board_chars(border-sep, [SideEdge, Sep]),
                              display_row_coordinates(Index),
                              NewIndex is Index+1,
                              write(SideEdge), 
@@ -82,9 +83,9 @@ display_lines([Line | T], Index) :- get_chars(border-sep, [SideEdge, Sep]),
 
 % display_board_line(+Lines, +Sep)
 % Display each row of the playable board, with the appropriate separation.
-display_board_line([[]], Sep) :- get_chars(board-empty, [Char]), 
+display_board_line([[]], Sep) :- board_chars(board-empty, Char), 
                                  write(Char).
-display_board_line([[] | T], Sep) :- get_chars(board-empty, [Char]), 
+display_board_line([[] | T], Sep) :- board_chars(board-empty, Char), 
                                      write(Char),
                                      write(Sep),
                                      display_board_line(T, Sep).
@@ -116,29 +117,36 @@ display_row_stacks([Stack | T], Row/Col, Size) :- NewCol is Col + 1,
 
 %
 % Other Menu Options
-%                   
+%
+
+% valid_player(+PlayerType)
+% Check the validity of the given player type.
 valid_player(h).
 valid_player(c1).
 valid_player(c2).
-validate_gamemode(P1/P2) :- valid_player(P1), valid_player(P2), write('Gamemode valid!'), nl.
 
-set_gamemode :- format('Which gamemode do you want to play?~nSpecify it using "P1/P2". Options are "h" (Human) and "c{1/2}" (Computer-Level).~n', []),
-                read(Gamemode),
+% validate_gamemode(+Gamemode)
+% Validates the gamemode typed by the user.
+validate_gamemode(P1/P2) :- valid_player(P1), valid_player(P2).
+
+% set_gamemode/0
+% Ask the user to choose a gamemode
+set_gamemode :- repeat,
+                format('Which gamemode do you want to play?~nSpecify it using "P1/P2". Options are "h" (Human) and "c{1/2}" (Computer1 - Easy, Computer2 - Hard).~nDefault is "h/h".~n', []),
+                catch(read(Gamemode), Error, fail),
                 validate_gamemode(Gamemode),
                 retract(gamemode(_)), 
-                assert(gamemode(Gamemode)),
+                assertz(gamemode(Gamemode)),
                 !.
-set_gamemode :- error_message.
 
-% get_boardsize/0
-% Get and reset the size of the board to be used in-game. (To be scraped?)
-get_boardsize :- write('What board size do you want? We recommend 4, but choose any integer above 3.'), nl,
+
+% set_boardsize/0
+% Set the size of the board to be used in-game. (Game-over check only supports 4x4 boards, scrapped.)
+/*
+set_boardsize :- write('What board size do you want? We recommend 4, but choose any integer above 3.'), nl,
                  read(Size),
                  integer(Size), Size > 3,
                  retract(size(_)), assertz(size(Size)),
                  !.
-get_boardsize :- error_message.
-
-% error_message/0
-% Generic error message to be shown in case of an explosion during program execution.
-error_message :- write('An error ocurred while parsing your input. Returning to main menu.'), nl.
+set_boardsize :- error_message.
+*/

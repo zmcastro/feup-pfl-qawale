@@ -8,7 +8,7 @@ opposites(101, 119).
 opposites(119, 101).
 
 initial_state(Size, Board-triangle) :- Size > 3,
-                              stone_char(neutral, Neutral),
+                              piece_char(neutral, Neutral),
                               fill_edge_row(Size, Neutral, EdgeRow),
                               fill_row(Size, Row),
                               fill_board(Size, EdgeRow, Row, Board).
@@ -110,7 +110,7 @@ get_row(Board, Row, ChosenRow) :- nth1(Row, Board, ChosenRow).
 place_piece(Board, Player, Row/Col, NewBoard) :- get_stack(Board, Row/Col, ChosenStack),
                                                 get_row(Board, Row, ChosenRow),
                                                 (
-                                                    stone_char(Player, Piece), append([Piece], ChosenStack, NewStack);
+                                                    piece_char(Player, Piece), append([Piece], ChosenStack, NewStack);
                                                     append([Player], ChosenStack, NewStack)
                                                 ), !,
                                                 generate_board(Board, Row/Col, ChosenRow, NewStack, NewBoard).
@@ -142,7 +142,7 @@ value(Board-Player, Row/Col, Value) :- (
                                         game_over(Board-Player, Winner, 1), Winner = Player, Value = 99
                                         ;
                                         get_stack(Board, Row/Col, Stack),
-                                        stone_char(Player, PlayerChar),
+                                        piece_char(Player, PlayerChar),
                                         count(PlayerChar, Stack, Value), !
                                         ).
 
@@ -151,10 +151,10 @@ value(Board-Player, Value) :- (
                                 ; 
                                 top_piece_list(Board, NestedLists),
                                 append(NestedLists, List),
-                                stone_char(Player, PlayerChar),
+                                piece_char(Player, PlayerChar),
                                 count(PlayerChar, List, PlayerValue),
                                 turn_change(Player, Opponent),
-                                stone_char(Opponent, OpponentChar),
+                                piece_char(Opponent, OpponentChar),
                                 count(OpponentChar, List, OpponentValue),
                                 Value is PlayerValue-OpponentValue
                               ).
@@ -173,13 +173,13 @@ game_over(Board-Player, Winner, TurnsLeft) :- (
 
 no_turns_left(TurnsLeft, draw) :- TurnsLeft < 1.
 
-four_in_line(Board, triangle) :- stone_char(triangle, Char),
+four_in_line(Board, triangle) :- piece_char(triangle, Char),
                                  (
                                   row_check(Board, Char); 
                                   column_check(Board, Char); 
                                   diagonal_check(Board, Char)
                                  ).
-four_in_line(Board, circle) :- stone_char(circle, Char),
+four_in_line(Board, circle) :- piece_char(circle, Char),
                                (
                                 row_check(Board, Char); 
                                 column_check(Board, Char); 
@@ -202,14 +202,14 @@ diagonal_check(Board, Winner) :- (
                                             [[Winner | _], _, _, _]]
                                 ).
 
-replace([_|T], 1, X, [X|T]).
-replace([H|T], I, X, [H|R]):- I > 1, I1 is I-1, replace(T, I1, X, R).
+% utils 
+
+% replace(+List, +Index, +Sub, -NewList)
+replace([_|T], 1, Sub, [Sub|T]).
+replace([Head|T], Index, Sub, [Head|T2]):- Index > 1, NewIndex is Index-1, replace(T, NewIndex, Sub, T2).
 
 pop_back([_], []).
 pop_back([H|T], [H|T2]) :- pop_back(T, T2).
-
-
-% utils 
 
 count(_, [], 0).
 count(Elem, [ Elem | T ], N) :- count(Elem, T, N1),

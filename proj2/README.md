@@ -32,7 +32,7 @@ The game board is a 4 by 4 grid and starts off with 4 stacks of 2 `Squares` in e
 
 ![start_display](docs/start_display.png)
 
-To play, a player must choose a stack to place one piece. AS such, to start, the only available moves are to place a piece in 1/1, 4/1, 1/4 and 4/4. <br> After choosing a piece placement, the player must take that stack of pieces and lays them adjacently to that stack. Each piece gets layed one at a time, starting with the piece at the bottom of the stack. Each piece movement MUST be orthogonally adjacent to the previous one (vertically or horizontally but NOT diagonally). Adding to this, the player cannot move backwards to a space they passed through - they can only circle back to it. This stack movement is displayed in the image below:
+To play, a player must choose a stack to place one piece. As such, to start, the only available moves are to place a piece in 1/1, 4/1, 1/4 and 4/4. <br> After choosing a piece placement, the player must take that stack of pieces and lay them adjacently to that stack. Each piece gets placed one at a time, starting with the piece at the bottom of the stack. Each piece movement MUST be orthogonally adjacent to the previous one (vertically or horizontally but NOT diagonally). Adding to this, the player cannot move backwards to a space they passed through - they can only circle back to it. This stack movement is displayed in the image below:
 
 ![stack_movement](docs/stack_movement.png)
 
@@ -57,7 +57,7 @@ Starting with the menu, we display 3 options onscreen:
 2. *Start the game* - Starts the game with the selected gamemode.
 3. *Exit the program* - Exits the program.
 <br> 
-For the game's board itself, we used the `get_chars` predicate to construct an easy-to-understand grid with specific hexadecimal characters. We pair this with a text-description of the game state, showing each grid slot's stack below the top-down view of the board, as shown below:
+For the game's board itself, we used the `board_chars` predicate to construct an easy-to-understand grid with specific hexadecimal characters. We pair this with a text-description of the game state, showing each grid slot's stack below the top-down view of the board, as shown below:
 
 ![start_display](docs/start_display.png)
 

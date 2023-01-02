@@ -4,14 +4,14 @@
 :- use_module(library(random)).
 
 % play/0
-% Predicate that starts the application.
+% Start the application.
 play :- main_menu.
 
 % main_menu/0
-% Displays a menu with various options. Loops until it receives a valid input.
+% Display a menu with various options. Loops until it receives a valid input.
 main_menu :- repeat,
-             format('What would you like to do?~n1- Choose gamemode~n2- Start the game~n3- Exit the program~nDo not forget to add a dot after every input!~n', []),
-             read(Option),
+             format('~nMain Menu~n~n1- Choose gamemode~n2- Start the game~n3- Exit the program~nDo not forget to add a dot after every input!~n', []),
+             catch(read(Option), Error, fail),
              (
                 Option = 3, main_menu(Option);
                 main_menu(Option), false
@@ -19,38 +19,38 @@ main_menu :- repeat,
 
 
 % main_menu(+Option)
-% Calls the appropriate function based on the option chosen.
+% Call the appropriate function based on the option chosen.
 main_menu(1) :- set_gamemode.
 main_menu(2) :- start.
 main_menu(3) :- write('Goodbye!').
 
 % start/0
-% Starts the game, initializing the board and entering the game loop.
+% Start the game, initializing the board and entering the game loop.
 start :- size(Size),
-         total_pieces(Pieces),
+         total_pieces(Turns),
          initial_state(Size, GameState),
          display_game(GameState),
          gamemode(PlayerOneType/_),
-         game_loop(GameState-PlayerOneType, Pieces).
+         game_loop(GameState-PlayerOneType, Turns).
 
 % game_loop(+GamePhase, +TurnsLeft)
 % The game's main loop.
-% Verifies that the game is not over, either by victory or lack of playable pieces (which ends the game in a Draw),
+% Verify that the game is not over, either by victory or lack of playable pieces (which ends the game in a Draw),
 % then asks the player for a move, switching players afterward and rendering the new board.
 % On game over, the loop ends.
 game_loop(GameState-PlayerType, TurnsLeft) :- game_over(GameState, Winner, TurnsLeft), !,
-                                              winner_message(Winner),
-                                              format('~n~nGAME OVER~n~n',[]).
-game_loop(GameState-PlayerType, TurnsLeft) :- ask_move(GameState, PlayerType, PieceMove, piece, TurnsLeft),
-                                   move(GameState, PieceMove, piece, MidGameState),
+                                              winner_message(Winner).
+game_loop(GameState-PlayerType, TurnsLeft) :- ask_move(GameState, PlayerType, PieceMove, TurnsLeft),
+                                   move(GameState, PieceMove, piece, MidGameState), !,
                                    (
+                                    PieceMove = give/up, fail
+                                   ;
                                     game_over(MidGameState, Winner, TurnsLeft), !,
                                     display_game(MidGameState), !,
-                                    winner_message(Winner),
-                                    format('~n~nGAME OVER~n~n',[])
+                                    winner_message(Winner)
                                    ;
                                     get_stack(MidGameState, PieceMove, Stack),
-                                    format('~nStack to be moved: ~w~n~n', [Stack]),
+                                    format('Stack to be moved: ~w~n~n', [Stack]),
                                     ask_move(MidGameState, PlayerType, StackMove, PieceMove, stack, TurnsLeft),
                                     move(MidGameState, StackMove, PieceMove, stack, NewGameState),
                                     NewTurnsLeft is TurnsLeft-1,
@@ -59,38 +59,47 @@ game_loop(GameState-PlayerType, TurnsLeft) :- ask_move(GameState, PlayerType, Pi
                                     game_loop(NewGameState-NextPlayerType, NewTurnsLeft)
                                    ).
 
-% ask_move(+GameState, +PlayerType, -Move, +TurnsLeft)
-% Asks a human player for a move, or makes the computer choose a move depending on its difficulty.
-ask_move(Board-Player, h, Row/Col, piece, TurnsLeft) :- repeat,
-                                                         format('~nTurns left: ~w. If no one wins in the remaining turns, the game will end in a draw.', [TurnsLeft]),
-                                                         format('~nTime to move, ~w. Where will you place your stone? (Input in "Row/Col" format)~n', [Player]),
-                                                         read(Row/Col),
-                                                         number(Row), number(Col),
-                                                         Row > 0, Col > 0,
-                                                         move(Board-Player, Row/Col, piece, _).
-ask_move(Board-Player, ComputerLevel, Placement, piece, TurnsLeft) :- choose_move(ComputerLevel, Board-Player, Placement, piece),
-                                                                 format('Beep. I place my piece here: ~w~n', [Placement]).
-ask_move(Board-Player, h, Move, PieceMove, stack, TurnsLeft) :- repeat,
-                                                               get_stack(Board, PieceMove, Stack),
-                                                               format('~w, where will you move your stack? (Input a string of characters X, such that:~n', [Player]),
-                                                               format('X is formed by "n", "s", "e" or "w" (North, South, East, West), and you cannot move to where you were directly before (Which means no "ns", "sn", "ew" or "we").~n',[]),
-                                                               format('Make sure the length of your string matches the length of the stack you are moving.~n',[]),
-                                                               format('The first piece to be placed is the one on the right.~n',[]),
-                                                               read(Move),
-                                                               move(Board-Player, Move, PieceMove, stack, _).
-ask_move(Board-Player, ComputerLevel, Move, PieceMove, stack, TurnsLeft) :- choose_move(ComputerLevel, Board-Player, Move, PieceMove, stack),
-                                                                format('Boop. I move the stack like this: ~w~n~n', [Move]).
+% ask_move(+GameState, +PlayerType, +TurnsLeft, -Move)
+% Ask a human player for coordinates to place its piece or lets the computer choose a move, depending on its difficulty.
+ask_move(Board-Player, h, TurnsLeft, Row/Col) :- repeat,
+                                                 format('Turns left: ~w. If no one wins in the remaining turns, the game will end in a draw.~n', [TurnsLeft]),
+                                                 format('Time to move, ~w. Where will you place your stone? (Input in "Row/Col" format)~n', [Player]),
+                                                 catch(read(Row/Col), Error, fail),
+                                                 (
+                                                  Row/Col = give/up, surrender_message(Player), !, fail
+                                                  ;
+                                                  number(Row), number(Col)
+                                                 ),
+                                                 Row > 0, Col > 0,
+                                                 move(Board-Player, Row/Col, piece, _).  % move without saving the board, to check for potentially invalid moves
+ask_move(Board-Player, ComputerLevel, TurnsLeft, Placement) :- choose_move(ComputerLevel, Board-Player, Placement, piece),
+                                                               format('Beep. I place my piece here: ~w~n~n', [Placement]).
 
-choose_move(c1, GameState, Placement, piece) :- valid_moves(GameState, Moves), 
-                                                random_select(Placement, Moves, _).
-choose_move(c2, GameState, Placement, piece) :- setof(Value-Move, NewState^(move(GameState, Move, piece, NewState), 
-                                                value(NewState, Move, Value) ), Results),
-                                                last(Results, Value-_),
-                                                include(highest_value(Value), Results, BestMoves),
-                                                random_select(_-Placement, BestMoves, _).
-choose_move(c1, GameState, Move, Row/Col, stack) :- valid_moves(GameState, Row/Col, Moves),
+% ask_move(+GameState, +PlayerType, +Placement, +TurnsLeft, -Move)
+% Ask a human player for a string of characters to move its stack or lets the computer choose a move, depending on its difficulty.
+ask_move(Board-Player, h, PieceMove, TurnsLeft, Move) :- repeat,
+                                                                get_stack(Board, PieceMove, Stack),
+                                                                format('~w, where will you move your stack? (Input a string of characters X, such that:~n', [Player]),
+                                                                format('X is formed by "n", "s", "e" or "w" (North, South, East, West), and you cannot move to where you were directly before (Which means no "ns", "sn", "ew" or "we").~n',[]),
+                                                                format('Make sure the length of your string matches the length of the stack you are moving.~n',[]),
+                                                                format('The first piece to be placed is the one on the right.~n',[]),
+                                                                catch(read(Move), Error, ask_move(Board-Player, h, Move, PieceMove, stack, TurnsLeft)),
+                                                                move(Board-Player, Move, PieceMove, stack, _). % move without saving the board, to check for potentially invalid moves
+ask_move(Board-Player, ComputerLevel, PieceMove, TurnsLeft, Move) :- choose_move(ComputerLevel, Board-Player, Move, PieceMove, stack),
+                                                                     format('Boop. I move the stack like this: ~w~n~n', [Move]).
+
+% choose_move(+ComputerLevel, +GameState, -Placement)
+% The level 1 computer chooses a random valid move, while the level 2 computer
+choose_move(c1, GameState, Placement) :- valid_moves(GameState, Moves), 
+                                         random_select(Placement, Moves, _).
+choose_move(c2, GameState, Placement) :- setof(Value-Move, NewState^(move(GameState, Move, piece, NewState), 
+                                         value(NewState, Move, Value) ), Results),
+                                         last(Results, Value-_),
+                                         include(highest_value(Value), Results, BestMoves),
+                                         random_select(_-Placement, BestMoves, _).
+choose_move(c1, GameState, Placement, Move) :- valid_moves(GameState, Placement, Moves),
                                                     random_select(Move, Moves, _).
-choose_move(c2, Board-Player, Move, Row/Col, stack) :- valid_moves(Board-Player, Row/Col, Moves),
+choose_move(c2, Board-Player, Placement, Move) :- valid_moves(Board-Player, Placement, Moves),
                                                        value_moves(Board-Player, Row/Col, Moves, ValuedMoves),
                                                        sort(ValuedMoves, SortedMoves),
                                                        last(SortedMoves, Value-_),
@@ -98,6 +107,10 @@ choose_move(c2, Board-Player, Move, Row/Col, stack) :- valid_moves(Board-Player,
                                                        random_select(_-Move, BestMoves, _).
 
 
-winner_message(triangle) :- format('You are a player of acute intelligence. Nice win, triangle!',[]).
-winner_message(circle) :- format('A round of applause to the winner: circle!',[]).
-winner_message(draw) :- format('After a true display of skill, the match unfortunately ends in a draw.',[]).
+winner_message(triangle) :- format('You are a player of acute intelligence. Nice win, triangle!~n~nGAME OVER~n',[]).
+winner_message(circle) :- format('A round of applause to the winner: circle!~n~nGAME OVER~n',[]).
+winner_message(draw) :- format('After a true display of skill, the match unfortunately ends in a draw.~n~nGAME OVER~n',[]).
+
+surrender_message(Loser) :- turn_change(Loser, Winner),
+                            format('~n~w surrenders...~n', [Loser]),
+                            winner_message(Winner).
