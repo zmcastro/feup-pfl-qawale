@@ -1,6 +1,6 @@
 # PFL TP2: Qawale
 
-### **Grupo T11_Qawale3
+## Grupo T11_Qawale3
 ### Pedro Alexandre Ferreira e Silva - up202004985 (%)
 ### José Maria Borges Pires do Couto e Castro - up202006963 (%)
 
@@ -99,5 +99,5 @@ As stated in the project's requirements, the level 1 difficulty computer will al
 # 4. Conclusions
 
 All in all, this project helped us come to grips with Prolog as a logical programming language, especially in its backtracking aspects. At first, we weren't sure how to build a game in a language that differed so much from what we're used to, but Prolog's condensed and powerful predicates helped us construct a decent write-up of a board game without much trouble, helping us tremendously with its backtracking in the computer-player implementation. <br>
-Since Qawale is a two-part movement game in which the players decide where to put the piece and also where to distribute the stack to, one limitation of our work is that the computer movements are limited by the piece placement, as their movement will always be dictated by what is picked in that part of the move. The stack distribution, while still greedy in its nature, never checks other possible piece placements that weren't as highly valued to further improve the probability it always chooses the best two-part play.
+Since Qawale is a two-part movement game in which the players decide where to put the piece and also where to distribute the stack to, one limitation of our work is that the computer movements are limited by the piece placement, as their movement will always be dictated by what is picked in that part of the move. The stack distribution, while still greedy in its nature, never checks other possible piece placements that weren't as highly valued to further improve the probability it always chooses the best two-part play. <br>
 A possible improvement would be better organization of the code. 
