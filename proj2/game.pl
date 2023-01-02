@@ -87,7 +87,7 @@ ask_move(GameState, ComputerLevel, TurnsLeft, Placement) :- choose_move(Computer
 % Ask a human player for a string of characters to move its stack or lets the computer choose a move, depending on its difficulty.
 ask_move(Board-Player, h, Placement, TurnsLeft, Move) :- repeat,
                                                                 get_stack(Board, Placement, Stack),
-                                                                format('So, ~w, where will you move your stack? Input a string of characters, such that:~n', [Player]),
+                                                                format('So, ~w, where will you move your stack? Input a string of characters X, such that:~n', [Player]),
                                                                 format('X is formed by "n", "s", "e" or "w" (North, South, East, West), and you cannot move to where you were directly before (Which means no "ns", "sn", "ew" or "we").~n',[]),
                                                                 format('Make sure the length of your string matches the length of the stack you are moving.~n',[]),
                                                                 format('The first piece to be placed is the one on the right.~n',[]),
