@@ -5,7 +5,18 @@
 
 % play/0
 % Start the application.
-play :- main_menu.
+play :- title_screen,
+        main_menu.
+
+% title_screen/0
+% Display the game's name written in ASCII art.
+title_screen :- format("
+,---.               |         
+|   |,---.. . .,---.|    ,---.
+|   |,---|| | |,---||    |---'
+`---\\`---^`-'-'`---^`---'`---'
+").
+
 
 % main_menu/0
 % Display a menu with various options. Loops until it receives a valid input.
@@ -19,7 +30,7 @@ main_menu :- repeat,
 
 
 % main_menu(+Option)
-% Call the appropriate function based on the option chosen.
+% Call the appropriate predicate based on the option chosen.
 main_menu(1) :- set_gamemode.
 main_menu(2) :- start.
 main_menu(3) :- write('Goodbye!').

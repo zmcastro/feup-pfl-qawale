@@ -10,8 +10,8 @@ opposites(101, 119).
 opposites(119, 101).
 
 % initial_state(+Size, -GameState)
-% Initialize a board of size Size with one stack of 2 neutral pieces in each corner. The Player in the GameState is bound to triangle, which corresponds to the piece of the first
-% player to move.
+% Initialize a board of size Size with one stack of 2 neutral pieces in each corner. 
+% The Player in the GameState is bound to triangle, which corresponds to the piece of the first player to move.
 initial_state(Size, Board-triangle) :- Size > 3,
                                        piece_char(neutral, Neutral),
                                        fill_edge_row(Size, Neutral, EdgeRow),
@@ -218,6 +218,10 @@ value_moves(Board-Player, Row/Col, [Move | T], [Value-Move | T2]) :- move(Board-
 % highest_value(+BestValue, +ValuedMove)
 % Check if the valued move has the specified value (used to check for the best value).
 highest_value(BestValue, Value-Move) :- Value = BestValue. 
+
+%
+% Game Over
+%
 
 % game_over(+GameState, -Winner, +TurnsLeft)
 % Verifies the victory of any player or if the turn count has reached 0 (ending in a draw).
