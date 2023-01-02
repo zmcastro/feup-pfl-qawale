@@ -135,7 +135,7 @@ As stated in the project's requirements, the level 1 difficulty computer will al
 
 - `choose_move(+ComputerLevel, +GameState, -Placement)` - Receives a computer level and a GameState and returns either a random placement if the computer level is 1 or the most valued placement (using the `value/3` predicate) if the computer level is 2. If there exists more than one placement with the highest value, the chosen move is randomized between these best possible placements.
 
-- `choose_move(+ComputerLevel, +GameState, +Placement, -Move)` - Receives a computer level, a GameState and the previous piece placement coordinates, returning a random move for the level 1 computer or the highest rated move for the level 2 computer. Based on the GameState and the previously chosen piece placement, a list of valid stack movements is calculated and each move is weighed against each other, using the `value_moves`value/2` predicate. If there exists more than one movement with the highest value, the chosen movement will be randomized between these.
+- `choose_move(+ComputerLevel, +GameState, +Placement, -Move)` - Receives a computer level, a GameState and the previous piece placement coordinates, returning a random move for the level 1 computer or the highest rated move for the level 2 computer. Based on the GameState and the previously chosen piece placement, a list of valid stack movements is calculated and each move is weighed against each other, using the `value_moves` `value/2` predicate. If there exists more than one movement with the highest value, the chosen movement will be randomized between these.
 
 # 4. Conclusions
 
