@@ -23,6 +23,11 @@ fill_row(Size, [[] | T]) :- Size > 0,
                             NewSize is Size-1,
                             fill_row(NewSize, T).
 
+fill_special_row(0, []).
+fill_special_row(Size, [['\x25B2\'] | T]) :- Size > 0,
+                                    NewSize is Size-1,
+                                    fill_special_row(NewSize, T).
+
 
 fill_board(Size, EdgeRow, Row, Board) :- NewSize is Size-2,
                                          fill_middle_board(NewSize, Row, MiddleBoard),
@@ -39,7 +44,7 @@ fill_middle_board(Size, Row, [Row | T]) :- Size > 0,
 %
 
 move(Board-Player, Row/Col, piece, NewBoard-Player) :- allowed_move(Board, Row, Col, piece),
-                                                        place_piece(Board, Player, Row/Col, NewBoard).
+                                                       place_piece(Board, Player, Row/Col, NewBoard).
 move(Board-Player, Move, Row/Col, stack, NewBoard-NextPlayer) :- allowed_move(Board, Move, MoveList, stack),
                                                                  get_stack(Board, Row/Col, ChosenStack),
                                                                  get_row(Board, Row, ChosenRow),
@@ -95,7 +100,9 @@ valid_coords(NewRow/NewCol) :- size(Size),
                                NewCol > 0, NewCol =< Size.
                                                       
 
-get_stack(Board, Row/Col, ChosenStack) :- nth1(Row, Board, ChosenRow),
+get_stack(Board-Player, Row/Col, ChosenStack) :- get_row(Board, Row, ChosenRow),
+                                                 nth1(Col, ChosenRow, ChosenStack).
+get_stack(Board, Row/Col, ChosenStack) :- get_row(Board, Row, ChosenRow),
                                           nth1(Col, ChosenRow, ChosenStack).
 
 get_row(Board, Row, ChosenRow) :- nth1(Row, Board, ChosenRow).
@@ -131,23 +138,16 @@ convert_to_atom([Move | T], [AtomMove | T2]) :- atom_codes(AtomMove, Move), conv
 
 % AI
 
-value(Board-Player, Row/Col, Value) :- get_stack(Board, Row/Col, Stack),
-                                       stone_char(Player, PlayerChar),
-                                       count(PlayerChar, Stack, Value), !.
-value(Board-Player, Value) :- (
-                                game_over(Board-Player, _, 1), Value = 99
-                              ; top_piece_list(Board, NestedLists),
-                                append(NestedLists, List),
-                                stone_char(Player, PlayerChar),
-                                count(PlayerChar, List, PlayerValue),
-                                turn_change(Player, Opponent),
-                                stone_char(Opponent, OpponentChar),
-                                count(OpponentChar, List, OpponentValue),
-                                Value is PlayerValue-OpponentValue
-                              ).
+value(Board-Player, Row/Col, Value) :- ( 
+                                        game_over(Board-Player, Winner, 1), Winner = Player, Value = 99
+                                        ;
+                                        get_stack(Board, Row/Col, Stack),
+                                        stone_char(Player, PlayerChar),
+                                        count(PlayerChar, Stack, Value), !
+                                        ).
 
 value(Board-Player, Value) :- (
-                                game_over(Board-Player, _, 1), Value = 99
+                                game_over(Board-Player, Winner, 1), Winner = Player, Value = 99
                                 ; 
                                 top_piece_list(Board, NestedLists),
                                 append(NestedLists, List),
@@ -158,6 +158,13 @@ value(Board-Player, Value) :- (
                                 count(OpponentChar, List, OpponentValue),
                                 Value is PlayerValue-OpponentValue
                               ).
+
+value_moves(Board-Player, _/_, [], []).
+value_moves(Board-Player, Row/Col, [Move | T], [Value-Move | T2]) :- move(Board-Player, Move, Row/Col, stack, NewBoard-_),
+                                                                     value(NewBoard-Player, Value),
+                                                                     value_moves(Board-Player, Row/Col, T, T2).
+
+highest_value(BestValue, Value-Move) :- Value = BestValue.
 
 game_over(Board-Player, Winner, TurnsLeft) :- (
                                                 four_in_line(Board, Winner);
