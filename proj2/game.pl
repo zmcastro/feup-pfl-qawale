@@ -49,6 +49,7 @@ game_loop(GameState-PlayerType, TurnsLeft) :- ask_move(GameState, PlayerType, Pi
                                     winner_message(Winner),
                                     format('~n~nGAME OVER~n~n',[])
                                    ;
+                                    get_stack(MidGameState, PieceMove, Stack),
                                     format('~nStack to be moved: ~w~n~n', [Stack]),
                                     ask_move(MidGameState, PlayerType, StackMove, PieceMove, stack, TurnsLeft),
                                     move(MidGameState, StackMove, PieceMove, stack, NewGameState),
@@ -72,7 +73,7 @@ ask_move(Board-Player, ComputerLevel, Placement, piece, TurnsLeft) :- choose_mov
 ask_move(Board-Player, h, Move, PieceMove, stack, TurnsLeft) :- repeat,
                                                                get_stack(Board, PieceMove, Stack),
                                                                format('~w, where will you move your stack? (Input a string of characters X, such that:~n', [Player]),
-                                                               format('X is formed by "n", "s", "w" or "e" (North, South, East, West), and you cannot move to where you were directly before (Which means no "ns", "ew", "we", etc.).~n',[]),
+                                                               format('X is formed by "n", "s", "e" or "w" (North, South, East, West), and you cannot move to where you were directly before (Which means no "ns", "sn", "ew" or "we").~n',[]),
                                                                format('Make sure the length of your string matches the length of the stack you are moving.~n',[]),
                                                                format('The first piece to be placed is the one on the right.~n',[]),
                                                                read(Move),
