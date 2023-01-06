@@ -22,7 +22,7 @@ Consult the `game.pl` file by writing `consult('game.pl').` to install the requi
 
 # 2. Game Description
 
-The chosen game for this project was [Qawale](https://www.hachetteboardgames.com/products/qawale). Its product page is found [here](https://www.hachetteboardgames.com/products/qawale) and its ruleset, as explained below, is found [here](https://randolphca.sharepoint.com/sites/Public/Documents%20partages/Forms/AllItems.aspx?id=%2Fsites%2FPublic%2FDocuments%20partages%2FSales%20%2D%20Ventes%2FTOOLS%20%2D%20OUTILS%2FVisuels%20jeux%20%2D%20Games%20Visual%2FUSA%2FQawale%20%2D%20media%20kit%2FQawale%20%2D%20rules%2Epdf&parent=%2Fsites%2FPublic%2FDocuments%20partages%2FSales%20%2D%20Ventes%2FTOOLS%20%2D%20OUTILS%2FVisuels%20jeux%20%2D%20Games%20Visual%2FUSA%2FQawale%20%2D%20media%20kit&p=true&ga=1).
+The chosen game for this project was [Qawale](https://www.hachetteboardgames.com/products/qawale). Its product page is found [here](https://www.hachetteboardgames.com/products/qawale) and its ruleset, as explained below, is found [here](https://randolphca.sharepoint.com/sites/Public/Documents%20partages/Forms/AllItems.aspx?id=%2Fsites%2FPublic%2FDocuments%20partages%2FSales%20%2D%20Ventes%2FTOOLS%20%2D%20OUTILS%2FVisuels%20jeux%20%2D%20Games%20Visual%2FUSA%2FQawale%20%2D%20media%20kit%2FQawale%20%2D%20rules%2Epdf&parent=%2Fsites%2FPublic%2FDocuments%20partages%2FSales%20%2D%20Ventes%2FTOOLS%20%2D%20OUTILS%2FVisuels%20jeux%20%2D%20Games%20Visual%2FUSA%2FQawale%20%2D%20media%20kit&p=true&ga=1). <br> The rights to the original game go to [Gigamic Games](https://en.gigamic.com/) and Qawale's creators Romain Froger and Didier Lenain Bragard. This project is merely an adaptation of their work. 
 
 ## Rules
 
